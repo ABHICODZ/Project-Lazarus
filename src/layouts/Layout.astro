@@ -1,0 +1,22 @@
+---
+interface Props { title: string; }
+const { title } = Astro.props;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>{title}</title>
+    <!-- Restoring the Archival Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=EB+Garamond:ital,wght@0,400..800;1,400..800&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-paperDark text-inkLight min-h-screen antialiased selection:bg-[#333333]">
+    <!-- Custom AI-Generated Dark Archival Background -->
+    <div class="fixed inset-0 pointer-events-none opacity-[0.25] bg-[url('/bg.jpg')] bg-cover bg-center bg-fixed z-0 mix-blend-screen"></div>
+    
+    <div class="relative z-10">
+      <slot />
+    </div>
+  </body>
+</html>

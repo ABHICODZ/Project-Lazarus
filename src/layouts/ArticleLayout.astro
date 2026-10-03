@@ -1,0 +1,27 @@
+---
+import Layout from './Layout.astro';
+const { frontmatter } = Astro.props;
+---
+<Layout title={frontmatter.title}>
+  <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
+    <a href="/" class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
+      ← Project Lazarus // Index
+    </a>
+  </nav>
+  
+  <article class="max-w-[68ch] mx-auto px-4 pb-24 relative">
+    <header class="mb-16">
+      <div class="flex items-baseline justify-between mb-4">
+        <span class="font-mono text-graphiteLight text-xs tracking-widest uppercase">[{frontmatter.tag}]</span>
+        <span class="font-mono text-graphiteLight text-sm">{frontmatter.date}</span>
+      </div>
+      <h1 class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">
+        {frontmatter.title}
+      </h1>
+    </header>
+    
+    <div class="font-serif text-lg leading-relaxed text-inkLight space-y-6">
+      <slot />
+    </div>
+  </article>
+</Layout>
