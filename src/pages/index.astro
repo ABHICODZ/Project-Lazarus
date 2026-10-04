@@ -17,7 +17,7 @@ allPosts.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => new Da
     </header>
 
     <div class="space-y-16">
-      {allPosts.map(post => (
+      {allPosts.map((post: CollectionEntry<'blog'>) => (
         <article class="group relative">
           <div class="flex items-baseline justify-between border-b border-hairlineDark pb-2 mb-4">
             <time class="font-mono text-graphiteLight text-sm">{post.data.date}</time>
