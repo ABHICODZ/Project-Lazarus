@@ -1,0 +1,28 @@
+---
+interface Props {
+  num: string | number;
+}
+const { num } = Astro.props;
+---
+<span class="relative group inline cursor-help">
+  <sup class="text-terracottaDark font-mono ml-0.5 font-bold">[{num}]</sup>
+  
+  <span class="
+    absolute z-50 
+    w-64 p-3 
+    bg-paperDark border border-hairlineDark shadow-2xl
+    text-sm font-mono text-graphiteLight leading-relaxed
+    
+    /* Mobile: Tooltip (appears on hover) */
+    opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+    bottom-full left-1/2 -translate-x-1/2 mb-2
+    
+    /* Desktop (Wide): Permanent Margin Note */
+    xl:opacity-100 xl:visible xl:bottom-auto xl:top-0 xl:left-[calc(100%+3rem)] xl:-translate-x-0 xl:-translate-y-2 xl:bg-transparent xl:border-none xl:shadow-none xl:border-l xl:border-terracottaDark/30 xl:p-0 xl:pl-4
+    
+    transition-all duration-300 pointer-events-none
+  ">
+    <strong class="text-terracottaDark block mb-1">[{num}]</strong>
+    <slot />
+  </span>
+</span>

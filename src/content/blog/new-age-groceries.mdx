@@ -5,6 +5,8 @@ tag: "TECH"
 description: "The beginning of the new era of technology came with a new era of necessity: API access to frontier LLMs..."
 ---
 
+import Sidenote from '../../components/Sidenote.astro';
+
 <style>
   .hover-reveal {
     position: relative;
@@ -30,16 +32,9 @@ description: "The beginning of the new era of technology came with a new era of 
     opacity: 1;
     transform: translateX(-50%) translateY(-10px);
   }
-  .reference-node {
-    vertical-align: super;
-    font-size: 0.6em;
-    font-family: "Courier Prime", monospace;
-    color: #C85A48;
-    margin-left: 2px;
-  }
 </style>
 
-the beginning of the new era of technology came with a new era of necessity: API access to <span class="hover-reveal">frontier LLMs<img class="img-popup" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Neural_network.svg/512px-Neural_network.svg.png" alt="neural network"/></span><span class="reference-node">[1]</span>. especially for engineers and students, this has become an unavoidable cost and a must-needed requirement.
+the beginning of the new era of technology came with a new era of necessity: API access to <span class="hover-reveal">frontier LLMs<img class="img-popup" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Neural_network.svg/512px-Neural_network.svg.png" alt="neural network"/></span><Sidenote num="1">Refers to highly parameterized transformer networks requiring cluster-scale inference.</Sidenote>. especially for engineers and students, this has become an unavoidable cost and a must-needed requirement.
 
 most people don't have the hardware to run capable local LLMs, and even when they do, they are often nowhere near the performance benchmark required to satisfy the use cases of these professionals. this has led to a shift in mindset — either adopt and pay for API services, or wait for better offline local models.
 
@@ -49,7 +44,7 @@ but the shift is apparent now.
 
 people are no longer hoping to run everything locally. they aren't afraid or alien to the idea of buying Claude Pro, ChatGPT Go, or something similar. the generous offers from these companies toward students — discounts, free usage, credits — have also helped normalize this behaviour.
 
-the development of agentic AI has pushed this even further<span class="reference-node">[2]</span>. once models stopped being something you simply talked to and started becoming something you could delegate work to, the commercial value of frontier-model access changed considerably.
+the development of agentic AI has pushed this even further<Sidenote num="2">E.g., AutoGPT, Devin, and embedded system agents executing multi-step planning.</Sidenote>. once models stopped being something you simply talked to and started becoming something you could delegate work to, the commercial value of frontier-model access changed considerably.
 
 but honestly, the retail subscription isn't really the endgame.
 
@@ -57,7 +52,7 @@ the bigger story is the huge workforce adapting to these <span class="hover-reve
 
 the goal of the frontier AI companies isn't necessarily the present. it's the future.
 
-a future where the infrastructure has stabilized, the hardware becomes economically feasible, inference becomes cheap enough, and AI becomes embedded deeply enough into production and productivity that access to machine intelligence becomes almost inevitable<span class="reference-node">[3]</span>.
+a future where the infrastructure has stabilized, the hardware becomes economically feasible, inference becomes cheap enough, and AI becomes embedded deeply enough into production and productivity that access to machine intelligence becomes almost inevitable<Sidenote num="3">Jevons paradox applies: as inference costs drop, demand for token generation scales exponentially.</Sidenote>.
 
 once that layer becomes part of the economic machinery, the subscription starts to look very different.
 
@@ -71,13 +66,4 @@ then the real age of groceries begins.
 
 and then this won't be a blog anymore.
 
-it'll just be a note from the present — a worthless piece of data in a world full of hungry, memory-eating intelligence<span class="reference-node">[4]</span>.
-
-<br/><br/>
-<!-- Footnotes / References Section -->
-<div class="font-mono text-sm text-graphiteLight border-t border-hairlineDark pt-6 mt-12 space-y-3">
-  <p><strong>[1]</strong> Refers to highly parameterized transformer networks requiring cluster-scale inference.</p>
-  <p><strong>[2]</strong> E.g., AutoGPT, Devin, and embedded system agents executing multi-step planning.</p>
-  <p><strong>[3]</strong> Jevons paradox applies: as inference costs drop, demand for token generation scales exponentially.</p>
-  <p><strong>[4]</strong> End of transmission.</p>
-</div>
+it'll just be a note from the present — a worthless piece of data in a world full of hungry, memory-eating intelligence<Sidenote num="4">End of transmission.</Sidenote>.
