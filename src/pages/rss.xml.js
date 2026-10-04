@@ -12,7 +12,7 @@ export async function GET(context) {
       title: post.data.title,
       pubDate: new Date(post.data.date),
       description: post.data.description || '',
-      link: `/${post.slug}/`,
+      link: `/Project-Lazarus/${post.slug}/`,
     })),
     customData: `<language>en-us</language>`,
   });
