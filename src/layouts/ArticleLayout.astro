@@ -72,3 +72,30 @@ const { frontmatter } = Astro.props;
     });
   });
 </script>
+
+<style is:global>
+  .hover-reveal {
+    position: relative;
+    text-decoration: underline;
+    text-decoration-color: #C85A48;
+    text-underline-offset: 4px;
+    cursor: crosshair;
+  }
+  .hover-reveal .img-popup {
+    position: absolute;
+    top: -120px;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+    mix-blend-mode: screen;
+    z-index: -1;
+    width: 250px;
+    filter: grayscale(100%) opacity(15%);
+  }
+  .hover-reveal:hover .img-popup {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-10px);
+  }
+</style>

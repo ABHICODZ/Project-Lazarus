@@ -7,33 +7,6 @@ description: "The beginning of the new era of technology came with a new era of 
 
 import Sidenote from '../../components/Sidenote.astro';
 
-<style>
-  .hover-reveal {
-    position: relative;
-    text-decoration: underline;
-    text-decoration-color: #C85A48;
-    text-underline-offset: 4px;
-    cursor: crosshair;
-  }
-  .hover-reveal .img-popup {
-    position: absolute;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    mix-blend-mode: screen;
-    z-index: -1;
-    width: 250px;
-    filter: grayscale(100%) opacity(15%);
-  }
-  .hover-reveal:hover .img-popup {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-10px);
-  }
-</style>
-
 the beginning of the new era of technology came with a new era of necessity: API access to <span class="hover-reveal">frontier LLMs<img class="img-popup" src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Neural_network.svg/512px-Neural_network.svg.png" alt="neural network"/></span><Sidenote num="1">Refers to highly parameterized transformer networks requiring cluster-scale inference.</Sidenote>. especially for engineers and students, this has become an unavoidable cost and a must-needed requirement.
 
 most people don't have the hardware to run capable local LLMs, and even when they do, they are often nowhere near the performance benchmark required to satisfy the use cases of these professionals. this has led to a shift in mindset — either adopt and pay for API services, or wait for better offline local models.
