@@ -23,3 +23,9 @@ npm-debug.log*
 
 # Stitch export (optional, keep if you want)
 # stitch_export/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+!.env.example
