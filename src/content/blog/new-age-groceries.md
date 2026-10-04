@@ -2,6 +2,7 @@
 title: "New Age Groceries"
 date: "2026.10.04"
 tag: "TECH"
+description: "The beginning of the new era of technology came with a new era of necessity: API access to frontier LLMs..."
 ---
 
 <style>
