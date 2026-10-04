@@ -1,0 +1,94 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Write - Project Lazarus">
+  <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6">
+    <header class="mb-12">
+      <h1 class="font-serif text-4xl text-inkLight mb-2">Terminal // Write</h1>
+      <p class="font-mono text-graphiteLight text-sm uppercase tracking-widest">Construct New Transmission</p>
+    </header>
+
+    <div class="space-y-6 bg-[#0a0a0a] p-8 border border-hairlineDark shadow-2xl">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div class="space-y-2">
+          <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Title</label>
+          <input type="text" id="title" placeholder="The End of History" class="w-full bg-paperDark border border-hairlineDark text-inkLight font-serif p-3 focus:outline-none focus:border-terracottaDark transition-colors" />
+        </div>
+        
+        <div class="space-y-2">
+          <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Tag</label>
+          <input type="text" id="tag" placeholder="TECH" class="w-full bg-paperDark border border-hairlineDark text-inkLight font-mono text-sm p-3 focus:outline-none focus:border-terracottaDark transition-colors" />
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Description</label>
+        <textarea id="description" rows="2" placeholder="A brief summary of the essay..." class="w-full bg-paperDark border border-hairlineDark text-graphiteLight font-serif p-3 focus:outline-none focus:border-terracottaDark transition-colors"></textarea>
+      </div>
+
+      <div class="space-y-2">
+        <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Content (MDX)</label>
+        <textarea id="content" rows="16" placeholder="Write your transmission here using Markdown..." class="w-full bg-paperDark border border-hairlineDark text-graphiteLight font-mono text-sm p-4 focus:outline-none focus:border-terracottaDark transition-colors leading-relaxed"></textarea>
+      </div>
+
+      <div class="pt-4 flex justify-between items-center">
+        <span class="text-xs font-mono text-graphiteLight">Will open GitHub Web Editor directly.</span>
+        <button id="publish-btn" class="px-6 py-3 bg-terracottaDark text-inkLight font-mono text-sm tracking-widest uppercase hover:bg-[#a64a3d] transition-colors cursor-pointer">
+          Compile & Publish
+        </button>
+      </div>
+    </div>
+  </main>
+</Layout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const btn = document.getElementById('publish-btn');
+    if (!btn) return;
+
+    btn.addEventListener('click', () => {
+      const title = (document.getElementById('title') as HTMLInputElement).value;
+      const tag = (document.getElementById('tag') as HTMLInputElement).value || 'NOTES';
+      const description = (document.getElementById('description') as HTMLTextAreaElement).value;
+      const content = (document.getElementById('content') as HTMLTextAreaElement).value;
+
+      if (!title) {
+        alert("Transmission requires a title.");
+        return;
+      }
+
+      // Generate Slug
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
+      
+      // Get today's date formatted as YYYY.MM.DD
+      const dateObj = new Date();
+      const yr = dateObj.getFullYear();
+      const mo = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const da = String(dateObj.getDate()).padStart(2, '0');
+      const formattedDate = `${yr}.${mo}.${da}`;
+
+      // Construct Markdown
+      const md = `---
+title: "${title.replace(/"/g, '\\"')}"
+date: "${formattedDate}"
+tag: "${tag.toUpperCase()}"
+description: "${description.replace(/"/g, '\\"')}"
+---
+
+${content}
+`;
+
+      // Construct GitHub URL for new file
+      // Repository: ABHICODZ/Project-Lazarus
+      // Branch: main
+      // Path: src/content/blog/
+      const githubUrl = new URL('https://github.com/ABHICODZ/Project-Lazarus/new/main/src/content/blog');
+      githubUrl.searchParams.set('filename', `${slug}.mdx`);
+      githubUrl.searchParams.set('value', md);
+
+      // Open GitHub Editor
+      window.open(githubUrl.toString(), '_blank');
+    });
+  });
+</script>
