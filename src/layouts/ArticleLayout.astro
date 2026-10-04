@@ -3,6 +3,20 @@ import Layout from './Layout.astro';
 const { frontmatter } = Astro.props;
 ---
 <Layout title={frontmatter.title}>
+  <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
+  <script>
+    document.addEventListener('astro:page-load', () => {
+      const progressBar = document.getElementById('progress-bar');
+      if(!progressBar) return;
+      window.addEventListener('scroll', () => {
+        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        const scrolled = (winScroll / height) * 100;
+        progressBar.style.width = scrolled + '%';
+      });
+    });
+  </script>
+
   <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
     <a href="/" class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
       ← Project Lazarus // Index
@@ -13,7 +27,10 @@ const { frontmatter } = Astro.props;
     <header class="mb-16">
       <div class="flex items-baseline justify-between mb-4">
         <span class="font-mono text-graphiteLight text-xs tracking-widest uppercase">[{frontmatter.tag}]</span>
-        <span class="font-mono text-graphiteLight text-sm">{frontmatter.date}</span>
+        <div class="flex gap-4">
+          {frontmatter.readingTime && <span class="font-mono text-graphiteLight text-sm italic">{frontmatter.readingTime}</span>}
+          <span class="font-mono text-graphiteLight text-sm">{frontmatter.date}</span>
+        </div>
       </div>
       <h1 class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">
         {frontmatter.title}

@@ -1,5 +1,4 @@
 ---
-layout: ../layouts/ArticleLayout.astro
 title: "New Age Groceries"
 date: "2026.10.04"
 tag: "TECH"

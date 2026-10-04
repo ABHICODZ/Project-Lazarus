@@ -1,0 +1,22 @@
+---
+import { getCollection } from 'astro:content';
+import ArticleLayout from '../layouts/ArticleLayout.astro';
+
+export async function getStaticPaths() {
+  const blogEntries = await getCollection('blog', ({ data }) => !data.draft);
+  return blogEntries.map(entry => ({
+    params: { slug: entry.slug }, props: { entry },
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await entry.render();
+
+// Calculate estimated reading time manually
+const words = entry.body.match(/\w+/g)?.length || 0;
+const readingTime = Math.max(1, Math.ceil(words / 225)) + " min read";
+---
+
+<ArticleLayout frontmatter={{ ...entry.data, readingTime }}>
+  <Content />
+</ArticleLayout>
