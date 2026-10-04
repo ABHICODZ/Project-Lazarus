@@ -1,9 +1,9 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { getCollection } from 'astro:content';
+import { getCollection, type CollectionEntry } from 'astro:content';
 
 const allPosts = await getCollection('blog', ({ data }) => !data.draft);
-allPosts.sort((a, b) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
+allPosts.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => new Date(b.data.date).getTime() - new Date(a.data.date).getTime());
 ---
 <Layout title="Project Lazarus | Archival Research Notes">
   <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
