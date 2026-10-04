@@ -16,7 +16,7 @@ import Layout from '../layouts/Layout.astro';
       <p class="font-mono text-graphiteLight text-sm uppercase tracking-widest">Interactive Experiments & Sketches</p>
     </header>
 
-    <div class="space-y-12">
+    <div class="space-y-16">
       <!-- Experiment 1 -->
       <section class="group">
         <h2 class="font-serif text-2xl text-inkLight mb-4 flex items-center gap-3">
@@ -28,109 +28,169 @@ import Layout from '../layouts/Layout.astro';
           <canvas id="particle-canvas" class="absolute inset-0 w-full h-full"></canvas>
         </div>
       </section>
+
+      <!-- Experiment 2 -->
+      <section class="group">
+        <h2 class="font-serif text-2xl text-inkLight mb-4 flex items-center gap-3">
+          <span class="text-terracottaDark">02.</span> Kinetic Engine
+        </h2>
+        <p class="font-serif text-graphiteLight mb-6">High-performance text layout and staggered animation. Driven by <a href="https://github.com/chenglou/pretext" class="underline hover:text-terracottaDark" target="_blank">pretext</a> to measure paragraphs without DOM reflows, and <a href="https://animejs.com/" class="underline hover:text-terracottaDark" target="_blank">anime.js</a> for the choreography.</p>
+        
+        <div class="relative w-full h-[400px] border border-hairlineDark bg-[#0a0a0a] overflow-hidden rounded-sm group-hover:border-terracottaDark/30 transition-colors p-6">
+          <button id="trigger-animation" class="absolute top-4 right-4 z-10 px-3 py-1 bg-paperDark border border-terracottaDark text-xs font-mono text-terracottaDark hover:bg-terracottaDark hover:text-inkLight transition-colors cursor-pointer">RUN / RETRY</button>
+          
+          <div id="text-container" class="font-mono text-sm leading-6 text-graphiteLight w-full h-full relative" data-raw="We used to dream of artificial intelligence taking over the mundane tasks, leaving us free to pursue art and leisure. Instead, the models got so good at mimicking human creativity that we found ourselves doing the data entry and RLHF just to feed them. But there is a silver lining. As the cost of intelligence approaches zero, the friction of manifesting ideas into reality approaches zero. The only remaining bottleneck is human imagination. This text is dynamically laid out calculating exact line breaks using canvas off-thread, completely side-stepping DOM reflow, and then animated absolutely using anime.js.">
+            <!-- Text injected via script -->
+            Click RUN to execute the layout engine.
+          </div>
+        </div>
+      </section>
     </div>
   </main>
 </Layout>
 
 <script>
-  // A lightweight interactive particle system (The "Quantum Lattice")
+  import anime from 'animejs';
+  import { prepareWithSegments, layoutWithLines } from '@chenglou/pretext';
+
   document.addEventListener('astro:page-load', () => {
+    // ----------------------------------------------------
+    // 01. QUANTUM LATTICE
+    // ----------------------------------------------------
     const canvas = document.getElementById('particle-canvas') as HTMLCanvasElement;
-    if (!canvas) return;
-    
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    let width = canvas.offsetWidth;
-    let height = canvas.offsetHeight;
-    canvas.width = width;
-    canvas.height = height;
-    
-    const particles: {x: number, y: number, originX: number, originY: number, vx: number, vy: number}[] = [];
-    const cols = Math.floor(width / 30);
-    const rows = Math.floor(height / 30);
-    
-    for(let i=0; i<cols; i++) {
-      for(let j=0; j<rows; j++) {
-        particles.push({
-          x: i * 30 + 15,
-          y: j * 30 + 15,
-          originX: i * 30 + 15,
-          originY: j * 30 + 15,
-          vx: 0,
-          vy: 0
+    if (canvas) {
+      const ctx = canvas.getContext('2d');
+      if (ctx) {
+        let width = canvas.offsetWidth;
+        let height = canvas.offsetHeight;
+        canvas.width = width;
+        canvas.height = height;
+        
+        const particles: {x: number, y: number, originX: number, originY: number, vx: number, vy: number}[] = [];
+        const cols = Math.floor(width / 30);
+        const rows = Math.floor(height / 30);
+        
+        for(let i=0; i<cols; i++) {
+          for(let j=0; j<rows; j++) {
+            particles.push({
+              x: i * 30 + 15,
+              y: j * 30 + 15,
+              originX: i * 30 + 15,
+              originY: j * 30 + 15,
+              vx: 0,
+              vy: 0
+            });
+          }
+        }
+        
+        let mouse = { x: -1000, y: -1000 };
+        canvas.addEventListener('mousemove', (e) => {
+          const rect = canvas.getBoundingClientRect();
+          mouse.x = e.clientX - rect.left;
+          mouse.y = e.clientY - rect.top;
+        });
+        canvas.addEventListener('mouseleave', () => {
+          mouse.x = -1000;
+          mouse.y = -1000;
+        });
+        
+        function animateLattice() {
+          if(!ctx) return;
+          ctx.clearRect(0, 0, width, height);
+          ctx.fillStyle = '#C85A48';
+          
+          for(let p of particles) {
+            const dx = mouse.x - p.x;
+            const dy = mouse.y - p.y;
+            const dist = Math.sqrt(dx * dx + dy * dy);
+            if (dist < 100) {
+              const angle = Math.atan2(dy, dx);
+              const force = (100 - dist) * 0.05;
+              p.vx -= Math.cos(angle) * force;
+              p.vy -= Math.sin(angle) * force;
+            }
+            p.vx += (p.originX - p.x) * 0.05;
+            p.vy += (p.originY - p.y) * 0.05;
+            p.vx *= 0.8;
+            p.vy *= 0.8;
+            p.x += p.vx;
+            p.y += p.vy;
+            
+            ctx.beginPath();
+            ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
+            ctx.fill();
+            
+            ctx.strokeStyle = 'rgba(200, 90, 72, 0.15)';
+            ctx.beginPath();
+            ctx.moveTo(p.originX, p.originY);
+            ctx.lineTo(p.x, p.y);
+            ctx.stroke();
+          }
+          requestAnimationFrame(animateLattice);
+        }
+        animateLattice();
+        window.addEventListener('resize', () => {
+          if(canvas.offsetWidth !== width) {
+            width = canvas.offsetWidth;
+            height = canvas.offsetHeight;
+            canvas.width = width;
+            canvas.height = height;
+          }
         });
       }
     }
+
+    // ----------------------------------------------------
+    // 02. KINETIC ENGINE (Pretext + AnimeJS)
+    // ----------------------------------------------------
+    const container = document.getElementById('text-container');
+    const btn = document.getElementById('trigger-animation');
     
-    let mouse = { x: -1000, y: -1000 };
-    canvas.addEventListener('mousemove', (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
-    });
-    canvas.addEventListener('mouseleave', () => {
-      mouse.x = -1000;
-      mouse.y = -1000;
-    });
-    
-    function animate() {
-      if(!ctx) return;
-      ctx.clearRect(0, 0, width, height);
+    if(container && btn) {
+      const rawText = container.getAttribute('data-raw') || '';
+      // We assume standard 'Courier Prime' sizes for our mono text.
+      const fontStr = "14px 'Courier Prime', monospace"; 
       
-      ctx.fillStyle = '#C85A48';
-      
-      for(let p of particles) {
-        // Compute distance from mouse
-        const dx = mouse.x - p.x;
-        const dy = mouse.y - p.y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-        
-        // Repel force
-        if (dist < 100) {
-          const angle = Math.atan2(dy, dx);
-          const force = (100 - dist) * 0.05;
-          p.vx -= Math.cos(angle) * force;
-          p.vy -= Math.sin(angle) * force;
-        }
-        
-        // Return force (spring back to origin)
-        p.vx += (p.originX - p.x) * 0.05;
-        p.vy += (p.originY - p.y) * 0.05;
-        
-        // Friction
-        p.vx *= 0.8;
-        p.vy *= 0.8;
-        
-        p.x += p.vx;
-        p.y += p.vy;
-        
-        // Draw
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Draw lines to origin
-        ctx.strokeStyle = 'rgba(200, 90, 72, 0.15)';
-        ctx.beginPath();
-        ctx.moveTo(p.originX, p.originY);
-        ctx.lineTo(p.x, p.y);
-        ctx.stroke();
+      let prepared: any = null;
+      try {
+         prepared = prepareWithSegments(rawText, fontStr);
+      } catch (e) {
+         console.warn("Pretext requires canvas font measuring. Defaulting to raw fallback if failed.", e);
       }
       
-      requestAnimationFrame(animate);
+      btn.addEventListener('click', () => {
+        if (!prepared) return;
+        
+        // Measure real width of container (subtracting any imaginary padding if needed, here p-6 is on parent, container is w-full)
+        const maxWidth = container.clientWidth;
+        const lineHeight = 24; // 1.5 rem (Tailwind leading-6) = 24px
+        
+        // 1. High perf line measuring, completely off-DOM
+        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        
+        container.innerHTML = '';
+        
+        // 2. Build DOM layout absolutely
+        lines.forEach((line, i) => {
+          const el = document.createElement('div');
+          el.textContent = line.text;
+          el.className = 'kinetic-line absolute left-0 text-graphiteLight whitespace-pre font-mono text-sm leading-6';
+          el.style.top = `${i * lineHeight}px`;
+          el.style.opacity = '0';
+          el.style.transform = 'translateY(15px)';
+          container.appendChild(el);
+        });
+        
+        // 3. Staggered Anime animation
+        anime({
+          targets: '.kinetic-line',
+          opacity: [0, 1],
+          translateY: [15, 0],
+          delay: anime.stagger(60),
+          easing: 'easeOutExpo',
+          duration: 1200
+        });
+      });
     }
-    
-    animate();
-    
-    window.addEventListener('resize', () => {
-      // Very basic resize handling
-      if(canvas.offsetWidth !== width) {
-        width = canvas.offsetWidth;
-        height = canvas.offsetHeight;
-        canvas.width = width;
-        canvas.height = height;
-      }
-    });
   });
 </script>
