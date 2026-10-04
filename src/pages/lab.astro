@@ -148,48 +148,79 @@ import Layout from '../layouts/Layout.astro';
     
     if(container && btn) {
       const rawText = container.getAttribute('data-raw') || '';
-      // We assume standard 'Courier Prime' sizes for our mono text.
       const fontStr = "14px 'Courier Prime', monospace"; 
       
-      let prepared: any = null;
-      try {
-         prepared = prepareWithSegments(rawText, fontStr);
-      } catch (e) {
-         console.warn("Pretext requires canvas font measuring. Defaulting to raw fallback if failed.", e);
-      }
-      
-      btn.addEventListener('click', () => {
-        if (!prepared) return;
+      // Wait for fonts to load so Pretext Canvas measurement is 100% accurate
+      document.fonts.ready.then(() => {
+        let prepared: any = null;
+        try {
+           prepared = prepareWithSegments(rawText, fontStr);
+        } catch (e) {
+           console.warn("Pretext failed", e);
+        }
         
-        // Measure real width of container (subtracting any imaginary padding if needed, here p-6 is on parent, container is w-full)
-        const maxWidth = container.clientWidth;
-        const lineHeight = 24; // 1.5 rem (Tailwind leading-6) = 24px
+        const runAnim = () => {
+          if (!prepared) return;
+          
+          // Measure real width of container minus padding (p-6 = 24px * 2)
+          const maxWidth = container.clientWidth - 48;
+          const lineHeight = 24; 
+          
+          // 1. High perf line measuring off-DOM
+          const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+          
+          container.innerHTML = '';
+          
+          // 2. Build DOM layout absolutely, split into characters
+          lines.forEach((line, lineIdx) => {
+            const lineEl = document.createElement('div');
+            lineEl.className = 'absolute left-6 whitespace-pre font-mono text-sm leading-6';
+            lineEl.style.top = `${24 + (lineIdx * lineHeight)}px`;
+            
+            line.text.split('').forEach((char) => {
+              const span = document.createElement('span');
+              span.innerHTML = char === ' ' ? '&nbsp;' : char;
+              span.className = 'k-char inline-block opacity-0';
+              
+              // Pre-scatter the characters randomly across the box
+              const rx = (Math.random() - 0.5) * 800;
+              const ry = (Math.random() - 0.5) * 800;
+              const rz = (Math.random() - 0.5) * 720;
+              span.style.transform = `translate(${rx}px, ${ry}px) rotate(${rz}deg) scale(4)`;
+              span.style.color = '#C85A48'; // Start Terracotta
+              
+              lineEl.appendChild(span);
+            });
+            
+            container.appendChild(lineEl);
+          });
+          
+          // 3. Spectacular Anime.js swarm animation
+          anime.timeline()
+            .add({
+              targets: '.k-char',
+              opacity: [0, 1],
+              translateX: 0,
+              translateY: 0,
+              rotate: 0,
+              scale: 1,
+              color: '#8a8a8a', // Settle into graphite
+              delay: anime.stagger(5, {start: 100, from: 'center'}), // Ripple from center
+              easing: 'easeOutElastic(1, .6)',
+              duration: 1800
+            });
+        };
         
-        // 1. High perf line measuring, completely off-DOM
-        const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
+        btn.addEventListener('click', runAnim);
         
-        container.innerHTML = '';
-        
-        // 2. Build DOM layout absolutely
-        lines.forEach((line, i) => {
-          const el = document.createElement('div');
-          el.textContent = line.text;
-          el.className = 'kinetic-line absolute left-0 text-graphiteLight whitespace-pre font-mono text-sm leading-6';
-          el.style.top = `${i * lineHeight}px`;
-          el.style.opacity = '0';
-          el.style.transform = 'translateY(15px)';
-          container.appendChild(el);
+        // Auto-run once when it scrolls into view so the user doesn't miss it
+        const observer = new IntersectionObserver((entries) => {
+          if (entries[0].isIntersecting) {
+            runAnim();
+            observer.disconnect();
+          }
         });
-        
-        // 3. Staggered Anime animation
-        anime({
-          targets: '.kinetic-line',
-          opacity: [0, 1],
-          translateY: [15, 0],
-          delay: anime.stagger(60),
-          easing: 'easeOutExpo',
-          duration: 1200
-        });
+        observer.observe(container);
       });
     }
   });
