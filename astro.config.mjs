@@ -2,10 +2,9 @@ import { defineConfig } from 'astro/config';
 import tailwind from '@astrojs/tailwind';
 import mdx from '@astrojs/mdx';
 
-import cloudflare from "@astrojs/cloudflare";
-
 export default defineConfig({
+  site: 'https://abhicodz.github.io',
+  base: '/Project-Lazarus',
   integrations: [tailwind(), mdx()],
-  output: "hybrid",
-  adapter: cloudflare()
+  output: 'static'
 });
