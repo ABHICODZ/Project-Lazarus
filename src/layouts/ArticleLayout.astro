@@ -2,7 +2,7 @@
 import Layout from './Layout.astro';
 const { frontmatter } = Astro.props;
 ---
-<Layout title={frontmatter.title}>
+<Layout title={frontmatter.title} description={frontmatter.description}>
   <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
   <script>
     document.addEventListener('astro:page-load', () => {
@@ -42,3 +42,33 @@ const { frontmatter } = Astro.props;
     </div>
   </article>
 </Layout>
+
+<script>
+  document.addEventListener('astro:page-load', () => {
+    const blocks = document.querySelectorAll('pre');
+    blocks.forEach((block) => {
+      if (block.querySelector('.copy-btn')) return; // Avoid duplicates on view transition
+      
+      const button = document.createElement('button');
+      button.className = "copy-btn absolute top-2 right-2 text-xs font-mono text-graphiteLight bg-paperDark border border-hairlineDark px-2 py-1 hover:text-inkLight hover:border-terracottaDark transition-colors";
+      button.innerText = "COPY";
+      
+      block.style.position = "relative";
+      block.appendChild(button);
+      
+      button.addEventListener('click', async () => {
+        // Find code content, excluding the button's own text
+        const code = block.querySelector('code')?.innerText || block.innerText.replace('COPY', '').replace('COPIED', '');
+        await navigator.clipboard.writeText(code.trim());
+        
+        button.innerText = "COPIED";
+        button.classList.add("text-terracottaDark", "border-terracottaDark");
+        
+        setTimeout(() => {
+          button.innerText = "COPY";
+          button.classList.remove("text-terracottaDark", "border-terracottaDark");
+        }, 2000);
+      });
+    });
+  });
+</script>
