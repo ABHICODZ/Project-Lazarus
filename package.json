@@ -14,7 +14,7 @@
     "check:links": "node scripts/check-links.mjs"
   },
   "dependencies": {
-    "@astrojs/mdx": "^6.0.3",
+    "@astrojs/mdx": "^8.0.3",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.4",
     "@chenglou/pretext": "^0.0.9",
@@ -23,7 +23,7 @@
     "@fontsource/eb-garamond": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
     "animejs": "^3.2.2",
-    "astro": "^6.4.8",
+    "astro": "^7.3.6",
     "dompurify": "^3.4.16",
     "fflate": "^0.8.3",
     "katex": "^0.19.0",
