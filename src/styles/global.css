@@ -1,6 +1,16 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+/* Colours resolve to the theme variables below, so every utility (and its opacity modifiers) follows the active theme. */
+@theme inline {
+  --color-paperDark: rgb(var(--paper));
+  --color-inkLight: rgb(var(--ink));
+  --color-graphiteLight: rgb(var(--graphite));
+  --color-terracottaDark: rgb(var(--accent));
+  --color-hairlineDark: rgb(var(--hairline));
+  --color-controlDark: rgb(var(--control));
+  --font-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  --font-mono: 'Courier Prime', ui-monospace, monospace;
+}
 
 /* ---- Theme tokens (RGB triplets so Tailwind opacity modifiers work) ---- */
 :root {
@@ -9,6 +19,7 @@
   --graphite: 176 174 168;
   --accent: 224 109 92;
   --hairline: 74 74 74;
+  --control: 125 123 118;
   --well: 10 10 10;
   --bg-opacity: 0.25;
   --bg-blend: screen;
@@ -20,6 +31,7 @@
   --graphite: 98 94 86;
   --accent: 168 62 44;
   --hairline: 201 194 177;
+  --control: 122 116 102;
   --well: 236 231 216;
   --bg-opacity: 0.08;
   --bg-blend: multiply;
@@ -32,7 +44,7 @@
     html { scroll-behavior: auto; }
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
-  body { font-family: theme('fontFamily.serif'); font-kerning: normal; font-variant-ligatures: common-ligatures; }
+  body { font-family: var(--font-serif); font-kerning: normal; font-variant-ligatures: common-ligatures; }
   :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
   ::selection { background: rgb(var(--accent) / 0.35); }
   h1, h2, h3 { text-wrap: balance; }
@@ -41,19 +53,19 @@
 .skip-link {
   position: absolute; left: 1rem; top: -4rem; z-index: 100;
   padding: .5rem 1rem; background: rgb(var(--paper)); color: rgb(var(--accent));
-  border: 1px solid rgb(var(--accent)); font-family: theme('fontFamily.mono');
+  border: 1px solid rgb(var(--accent)); font-family: var(--font-mono);
 }
 .skip-link:focus { top: 1rem; }
 
 /* ---- Article prose ---- */
 .prose-lazarus { text-wrap: pretty; hanging-punctuation: first; }
 .prose-lazarus > * + * { margin-top: 1.5rem; }
-.prose-lazarus h2, .prose-lazarus h3 { font-family: theme('fontFamily.serif'); line-height: 1.2; margin-top: 3rem; position: relative; }
+.prose-lazarus h2, .prose-lazarus h3 { font-family: var(--font-serif); line-height: 1.2; margin-top: 3rem; position: relative; }
 .prose-lazarus h2 { font-size: 1.875rem; }
 .prose-lazarus h3 { font-size: 1.4rem; font-style: italic; }
 .prose-lazarus h2 .anchor, .prose-lazarus h3 .anchor {
   position: absolute; right: 100%; padding-right: .5rem; opacity: 0; color: rgb(var(--accent));
-  font-family: theme('fontFamily.mono'); text-decoration: none; font-size: .9em;
+  font-family: var(--font-mono); text-decoration: none; font-size: .9em;
 }
 .prose-lazarus h2:hover .anchor, .prose-lazarus h3:hover .anchor, .prose-lazarus .anchor:focus { opacity: 1; }
 .prose-lazarus a { text-decoration: underline; text-decoration-color: rgb(var(--accent)); text-underline-offset: 4px; text-decoration-thickness: 1px; }
@@ -65,9 +77,9 @@
 .prose-lazarus blockquote { border-left: 2px solid rgb(var(--accent)); padding-left: 1.25rem; font-style: italic; color: rgb(var(--graphite)); }
 .prose-lazarus hr { border: 0; text-align: center; color: rgb(var(--graphite)); }
 .prose-lazarus hr::before { content: '∗ ∗ ∗'; letter-spacing: .5em; }
-.prose-lazarus :not(pre) > code { font-family: theme('fontFamily.mono'); font-size: .85em; padding: .1em .35em; background: rgb(var(--well)); border: 1px solid rgb(var(--hairline)); }
-.prose-lazarus pre { font-family: theme('fontFamily.mono'); font-size: .85rem; line-height: 1.6; padding: 1.25rem; overflow-x: auto; border: 1px solid rgb(var(--hairline)); }
-.prose-lazarus table { width: 100%; font-family: theme('fontFamily.mono'); font-size: .85rem; border-collapse: collapse; }
+.prose-lazarus :not(pre) > code { font-family: var(--font-mono); font-size: .85em; padding: .1em .35em; background: rgb(var(--well)); border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus pre { font-family: var(--font-mono); font-size: .85rem; line-height: 1.6; padding: 1.25rem; overflow-x: auto; border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus table { width: 100%; font-family: var(--font-mono); font-size: .85rem; border-collapse: collapse; }
 .prose-lazarus th, .prose-lazarus td { border-bottom: 1px solid rgb(var(--hairline)); padding: .5rem .75rem; text-align: left; }
 .prose-lazarus th { color: rgb(var(--accent)); font-weight: 700; }
 .prose-lazarus img { max-width: 100%; height: auto; }

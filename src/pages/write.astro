@@ -1,94 +1,146 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { REPO, BRANCH, TAGS, STATUSES, STAGES } from '../config';
+
+const field = 'w-full bg-paperDark border border-controlDark text-inkLight p-3 focus:border-terracottaDark transition-colors';
+const label = 'font-mono text-xs text-terracottaDark uppercase tracking-widest';
 ---
 
-<Layout title="Write - Project Lazarus">
-  <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6">
+<Layout title="Write | Project Lazarus" description="Draft a new transmission.">
+  <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6" data-repo={REPO} data-branch={BRANCH}>
     <header class="mb-12">
       <h1 class="font-serif text-4xl text-inkLight mb-2">Terminal // Write</h1>
       <p class="font-mono text-graphiteLight text-sm uppercase tracking-widest">Construct New Transmission</p>
     </header>
 
-    <div class="space-y-6 bg-[#0a0a0a] p-8 border border-hairlineDark shadow-2xl">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <form id="write-form" class="space-y-6 bg-[rgb(var(--well))] p-8 border border-hairlineDark shadow-2xl" novalidate>
+      <div class="space-y-2">
+        <label for="title" class={label}>Title</label>
+        <input type="text" id="title" required placeholder="The End of History" class={`${field} font-serif`} />
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div class="space-y-2">
-          <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Title</label>
-          <input type="text" id="title" placeholder="The End of History" class="w-full bg-paperDark border border-hairlineDark text-inkLight font-serif p-3 focus:outline-none focus:border-terracottaDark transition-colors" />
+          <label for="tag" class={label}>Tag</label>
+          <select id="tag" class={`${field} font-mono text-sm`}>
+            {TAGS.map((t) => <option value={t}>{t}</option>)}
+          </select>
         </div>
-        
         <div class="space-y-2">
-          <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Tag</label>
-          <input type="text" id="tag" placeholder="TECH" class="w-full bg-paperDark border border-hairlineDark text-inkLight font-mono text-sm p-3 focus:outline-none focus:border-terracottaDark transition-colors" />
+          <label for="status" class={label}>Epistemic status</label>
+          <select id="status" class={`${field} font-mono text-sm`}>
+            <option value="">(none)</option>
+            {STATUSES.map((s) => <option value={s}>{s}</option>)}
+          </select>
+        </div>
+        <div class="space-y-2">
+          <label for="stage" class={label}>Growth stage</label>
+          <select id="stage" class={`${field} font-mono text-sm`}>
+            <option value="">(none)</option>
+            {STAGES.map((s) => <option value={s}>{s}</option>)}
+          </select>
         </div>
       </div>
 
       <div class="space-y-2">
-        <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Description</label>
-        <textarea id="description" rows="2" placeholder="A brief summary of the essay..." class="w-full bg-paperDark border border-hairlineDark text-graphiteLight font-serif p-3 focus:outline-none focus:border-terracottaDark transition-colors"></textarea>
+        <label for="topics" class={label}>Topics (comma separated)</label>
+        <input type="text" id="topics" placeholder="statistical mechanics, phase transitions" class={`${field} font-mono text-sm`} />
       </div>
 
       <div class="space-y-2">
-        <label class="font-mono text-xs text-terracottaDark uppercase tracking-widest">Content (MDX)</label>
-        <textarea id="content" rows="16" placeholder="Write your transmission here using Markdown..." class="w-full bg-paperDark border border-hairlineDark text-graphiteLight font-mono text-sm p-4 focus:outline-none focus:border-terracottaDark transition-colors leading-relaxed"></textarea>
+        <label for="description" class={label}>Description</label>
+        <textarea id="description" rows="2" placeholder="A brief summary of the essay..." class={`${field} text-graphiteLight font-serif`}></textarea>
       </div>
 
-      <div class="pt-4 flex justify-between items-center">
-        <span class="text-xs font-mono text-graphiteLight">Will open GitHub Web Editor directly.</span>
-        <button id="publish-btn" class="px-6 py-3 bg-terracottaDark text-inkLight font-mono text-sm tracking-widest uppercase hover:bg-[#a64a3d] transition-colors cursor-pointer">
-          Compile & Publish
-        </button>
+      <div class="space-y-2">
+        <label for="content" class={label}>Content (MDX)</label>
+        <textarea id="content" rows="16" placeholder="Write your transmission here. Math: $E = mc^2$" class={`${field} text-graphiteLight font-mono text-sm leading-relaxed`}></textarea>
+        <p id="counter" class="font-mono text-xs text-graphiteLight" aria-live="polite"></p>
       </div>
-    </div>
+
+      <div class="pt-4 flex flex-wrap gap-4 justify-between items-center">
+        <span id="message" role="status" class="text-xs font-mono text-graphiteLight">Drafts save in this browser automatically.</span>
+        <div class="flex gap-3">
+          <button type="button" id="copy-btn" class="px-4 py-3 border border-controlDark text-graphiteLight font-mono text-sm tracking-widest uppercase hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer">Copy</button>
+          <button type="button" id="publish-btn" class="px-6 py-3 bg-terracottaDark text-paperDark font-mono text-sm tracking-widest uppercase hover:opacity-90 transition-opacity cursor-pointer">Open in GitHub</button>
+        </div>
+      </div>
+    </form>
   </main>
 </Layout>
 
 <script>
+  const KEY = 'lazarus-draft';
+  // GitHub's "new file" URL carries the whole post, and very long URLs get truncated.
+  const URL_LIMIT = 7000;
+
   document.addEventListener('astro:page-load', () => {
-    const btn = document.getElementById('publish-btn');
-    if (!btn) return;
+    const root = document.querySelector<HTMLElement>('main[data-repo]');
+    const form = document.getElementById('write-form');
+    if (!root || !form) return;
 
-    btn.addEventListener('click', () => {
-      const title = (document.getElementById('title') as HTMLInputElement).value;
-      const tag = (document.getElementById('tag') as HTMLInputElement).value || 'NOTES';
-      const description = (document.getElementById('description') as HTMLTextAreaElement).value;
-      const content = (document.getElementById('content') as HTMLTextAreaElement).value;
+    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
+    const ids = ['title', 'tag', 'status', 'stage', 'topics', 'description', 'content'] as const;
+    const message = $('message');
+    const say = (text: string) => (message.textContent = text);
 
-      if (!title) {
-        alert("Transmission requires a title.");
+    // --- autosave ---
+    try {
+      const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
+      for (const id of ids) if (saved[id] != null) $<HTMLInputElement>(id).value = saved[id];
+    } catch {}
+    const counter = $('counter');
+    const refresh = () => {
+      const words = $<HTMLTextAreaElement>('content').value.match(/\w+/g)?.length ?? 0;
+      counter.textContent = `${words} words`;
+    };
+    form.addEventListener('input', () => {
+      try {
+        localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(ids.map((id) => [id, $<HTMLInputElement>(id).value]))));
+      } catch {}
+      refresh();
+    });
+    refresh();
+
+    const q = (s: string) => JSON.stringify(s); // a JSON string is a valid YAML double-quoted scalar
+
+    const build = () => {
+      const title = $<HTMLInputElement>('title').value.trim();
+      if (!title) { say('A transmission needs a title.'); $('title').focus(); return null; }
+      const topics = $<HTMLInputElement>('topics').value.split(',').map((t) => t.trim()).filter(Boolean);
+      const d = new Date();
+      const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
+      const lines = [`title: ${q(title)}`, `date: ${q(date)}`, `tag: ${q($<HTMLSelectElement>('tag').value)}`];
+      if (topics.length) lines.push(`topics: [${topics.map(q).join(', ')}]`);
+      const status = $<HTMLSelectElement>('status').value;
+      const stage = $<HTMLSelectElement>('stage').value;
+      const desc = $<HTMLTextAreaElement>('description').value.trim();
+      if (status) lines.push(`status: ${q(status)}`);
+      if (stage) lines.push(`stage: ${q(stage)}`);
+      if (desc) lines.push(`description: ${q(desc)}`);
+      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled';
+      return { slug, md: `---\n${lines.join('\n')}\n---\n\n${$<HTMLTextAreaElement>('content').value}\n` };
+    };
+
+    $('copy-btn').addEventListener('click', async () => {
+      const post = build();
+      if (!post) return;
+      await navigator.clipboard.writeText(post.md);
+      say(`Copied. Save it as src/content/blog/${post.slug}.mdx`);
+    });
+
+    $('publish-btn').addEventListener('click', () => {
+      const post = build();
+      if (!post) return;
+      const url = new URL(`https://github.com/${root.dataset.repo}/new/${root.dataset.branch}/src/content/blog`);
+      url.searchParams.set('filename', `${post.slug}.mdx`);
+      url.searchParams.set('value', post.md);
+      if (url.toString().length > URL_LIMIT) {
+        say('Too long for a GitHub link. Use Copy, then paste into a new file on GitHub.');
         return;
       }
-
-      // Generate Slug
-      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '');
-      
-      // Get today's date formatted as YYYY.MM.DD
-      const dateObj = new Date();
-      const yr = dateObj.getFullYear();
-      const mo = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const da = String(dateObj.getDate()).padStart(2, '0');
-      const formattedDate = `${yr}.${mo}.${da}`;
-
-      // Construct Markdown
-      const md = `---
-title: "${title.replace(/"/g, '\\"')}"
-date: "${formattedDate}"
-tag: "${tag.toUpperCase()}"
-description: "${description.replace(/"/g, '\\"')}"
----
-
-${content}
-`;
-
-      // Construct GitHub URL for new file
-      // Repository: ABHICODZ/Project-Lazarus
-      // Branch: main
-      // Path: src/content/blog/
-      const githubUrl = new URL('https://github.com/ABHICODZ/Project-Lazarus/new/main/src/content/blog');
-      githubUrl.searchParams.set('filename', `${slug}.mdx`);
-      githubUrl.searchParams.set('value', md);
-
-      // Open GitHub Editor
-      window.open(githubUrl.toString(), '_blank');
+      window.open(url.toString(), '_blank', 'noopener');
+      say('Opened GitHub. Commit the file there to publish.');
     });
   });
 </script>

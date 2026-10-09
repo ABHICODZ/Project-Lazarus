@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import tailwind from '@astrojs/tailwind';
+import tailwindcss from '@tailwindcss/vite';
 import mdx from '@astrojs/mdx';
 import sitemap from '@astrojs/sitemap';
 import remarkMath from 'remark-math';
@@ -8,9 +8,11 @@ import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
 
 export default defineConfig({
-  site: 'https://abhicodz.github.io',
-  base: '/Project-Lazarus',
-  integrations: [tailwind({ applyBaseStyles: false }), mdx(), sitemap()],
+  // Override for another host, e.g. SITE_URL=https://example.com SITE_BASE=/ npm run build
+  site: process.env.SITE_URL ?? 'https://abhicodz.github.io',
+  base: process.env.SITE_BASE ?? '/Project-Lazarus',
+  integrations: [mdx(), sitemap()],
+  vite: { plugins: [tailwindcss()] },
   markdown: {
     remarkPlugins: [remarkMath],
     rehypePlugins: [

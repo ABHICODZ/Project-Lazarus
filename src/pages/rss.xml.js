@@ -8,7 +8,8 @@ export async function GET(context) {
   return rss({
     title: 'Project Lazarus',
     description: 'Research Notes & Working Papers // The Archival Rabbit Hole',
-    site: context.site,
+    // Channel link is derived from `site`, so include the base path.
+    site: new URL(base, context.site).href,
     items: blog.map((post) => ({
       title: post.data.title,
       pubDate: new Date(parseDate(post.data.date)),
