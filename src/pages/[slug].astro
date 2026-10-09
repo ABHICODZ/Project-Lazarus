@@ -16,6 +16,7 @@ const { entry, newer, older, more } = Astro.props;
 const { Content, headings } = await render(entry);
 ---
 <ArticleLayout
+  slug={entry.id}
   frontmatter={{ ...entry.data, readingTime: readingTime(entry.body) }}
   headings={headings}
   newer={newer}

@@ -1,5 +1,6 @@
 ---
 import { base } from '../utils/date';
+import Search from './Search.astro';
 interface Props { title?: string; subtitle?: string }
 const { title = 'Project Lazarus', subtitle = 'Research Notes & Working Papers // The Archival Rabbit Hole' } = Astro.props;
 const links = [['Lab', 'lab'], ['Archive', 'archive'], ['Write', 'write'], ['RSS', 'rss.xml']];
@@ -12,4 +13,5 @@ const links = [['Lab', 'lab'], ['Archive', 'archive'], ['Write', 'write'], ['RSS
       <a href={`${base}${path}`} class="text-graphiteLight hover:text-terracottaDark transition-colors">[{label}]</a>
     ))}
   </nav>
+  <div class="mt-6 flex justify-center"><Search /></div>
 </header>

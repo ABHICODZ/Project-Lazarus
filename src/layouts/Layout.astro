@@ -15,7 +15,7 @@ interface Props {
   type?: 'website' | 'article';
 }
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const { title, description = 'Research Notes & Working Papers', image = `${base}/bg.jpg`, type = 'website' } = Astro.props;
+const { title, description = 'Research Notes & Working Papers', image = `${base}/og/default.png`, type = 'website' } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -27,6 +27,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="alternate" type="application/rss+xml" title="Project Lazarus" href={`${base}/rss.xml`} />
+    <link rel="alternate" type="application/feed+json" title="Project Lazarus" href={`${base}/feed.json`} />
     <link rel="sitemap" href={`${base}/sitemap-index.xml`} />
 
     <meta property="og:title" content={title} />
@@ -34,7 +35,10 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <meta property="og:image" content={new URL(image, Astro.site)} />
     <meta property="og:type" content={type} />
     <meta property="og:url" content={canonical} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:image" content={new URL(image, Astro.site)} />
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
 
