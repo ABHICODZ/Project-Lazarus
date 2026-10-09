@@ -1,0 +1,30 @@
+{
+  "onsager1944": {
+    "authors": "Onsager, L.",
+    "year": 1944,
+    "title": "Crystal Statistics. I. A Two-Dimensional Model with an Order-Disorder Transition",
+    "venue": "Physical Review 65(3-4), 117-149",
+    "url": "https://doi.org/10.1103/PhysRev.65.117"
+  },
+  "metropolis1953": {
+    "authors": "Metropolis, N., Rosenbluth, A. W., Rosenbluth, M. N., Teller, A. H., Teller, E.",
+    "year": 1953,
+    "title": "Equation of State Calculations by Fast Computing Machines",
+    "venue": "Journal of Chemical Physics 21(6), 1087-1092",
+    "url": "https://doi.org/10.1063/1.1699114"
+  },
+  "ising1925": {
+    "authors": "Ising, E.",
+    "year": 1925,
+    "title": "Beitrag zur Theorie des Ferromagnetismus",
+    "venue": "Zeitschrift fur Physik 31, 253-258",
+    "url": "https://doi.org/10.1007/BF02980577"
+  },
+  "victor2011": {
+    "authors": "Victor, B.",
+    "year": 2011,
+    "title": "Explorable Explanations",
+    "venue": "worrydream.com",
+    "url": "https://worrydream.com/ExplorableExplanations/"
+  }
+}

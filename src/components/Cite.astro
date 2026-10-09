@@ -1,0 +1,15 @@
+---
+import refs from '../data/references.json';
+interface Props { id: string }
+const { id } = Astro.props;
+const ref = (refs as Record<string, { authors: string; year: number; title: string }>)[id];
+if (!ref) throw new Error(`<Cite id="${id}">: no such entry in src/data/references.json`);
+const first = ref.authors.split(',')[0];
+const label = `${first} ${ref.year}`;
+---
+<span class="relative group inline-block">
+  <a href={`#ref-${id}`} class="cite font-mono text-[0.8em] align-baseline">[{label}]</a>
+  <span role="tooltip" class="pointer-events-none absolute z-40 left-1/2 -translate-x-1/2 bottom-full mb-2 w-72 p-3 text-xs font-mono leading-relaxed bg-paperDark text-graphiteLight border border-hairlineDark shadow-2xl opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible transition-opacity">
+    {ref.authors} ({ref.year}). {ref.title}.
+  </span>
+</span>

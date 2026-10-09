@@ -1,6 +1,8 @@
 ---
 import Layout from '../layouts/Layout.astro';
 import { base } from '../utils/date';
+import Ising from '../components/explorables/Ising.astro';
+import PredictReveal from '../components/explorables/PredictReveal.astro';
 ---
 <Layout title="The Lab | Project Lazarus">
   <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
@@ -45,6 +47,18 @@ import { base } from '../utils/date';
             Click RUN to execute the layout engine.
           </div>
         </div>
+      </section>
+
+      <!-- Experiment 3 -->
+      <section>
+        <h2 class="font-serif text-2xl text-inkLight mb-4 flex items-center gap-3">
+          <span class="text-terracottaDark">03.</span> Ising Model
+        </h2>
+        <p class="font-serif text-graphiteLight mb-6">A grid of tiny magnets that each prefer to agree with their neighbours, shaken by heat. Drag the temperature across the critical point and watch order appear and vanish. The state lives in the URL, so you can share a particular run.</p>
+        <PredictReveal question="Start from random noise at T = 1.5, well below the critical point. After a while, what will the lattice look like?" options={['Still noise', 'Large single-colour domains']} answer={1}>
+          Below T<sub>c</sub> neighbours agreeing is cheaper than heat can undo, so aligned patches grow and merge. Nudge the slider past 2.27 and they dissolve again.
+        </PredictReveal>
+        <Ising />
       </section>
     </div>
   </main>
