@@ -41,6 +41,29 @@ import PredictReveal from '../../components/explorables/PredictReveal.astro';
 - Between entries: `[[slug]]` or `[[slug|link text]]`, where `slug` is the filename without extension. The target gains a "Mentioned in" list. Unknown slugs fail the build.
 - Math: `$inline$` and `$$display$$`.
 
+## Images
+
+- In `/write`, drop, paste or pick an image. It is resized to 1600px wide and converted to WebP in your browser; give it alt text (required) and an optional caption.
+- Images live in `src/assets/posts/<slug>/` and are imported by the post, so Astro optimises them at build time. Reference one by hand like this:
+
+```mdx
+import Figure from '../../components/Figure.astro';
+import lattice from '../../assets/posts/my-post/lattice.webp';
+
+<Figure src={lattice} alt="Spins at T = 2" caption="A lattice near the critical point" num={1} />
+```
+
+- GIFs and SVGs are kept as they are (a canvas would flatten the animation or rasterise the vector).
+
+## Publishing from /write
+
+| Option | Use when | Notes |
+| --- | --- | --- |
+| Open pull request | You want one click, with CI checking it before it goes live | Needs a [fine-grained token](https://github.com/settings/personal-access-tokens/new) limited to this repo with Contents and Pull requests set to read and write. Commits the post and images to `post/<slug>` in one commit. The token goes only to api.github.com; tick "Remember" to keep it in this browser's storage (unencrypted) |
+| Download .zip | No token, or you prefer committing yourself | Unzip into the repo root: it contains `src/content/...` and `src/assets/posts/...` |
+| Copy Markdown | Text only, or you are adding images separately | |
+| Open in GitHub (text only) | A short post without images | Long posts exceed GitHub's URL limit |
+
 ## Adding an explorable
 
 1. Make `src/components/explorables/YourThing.astro`, wrapping its UI in `<Explorable title="..." source="src/components/explorables/YourThing.astro">`.

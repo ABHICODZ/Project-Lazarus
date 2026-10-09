@@ -4,143 +4,145 @@ import { REPO, BRANCH, TAGS, STATUSES, STAGES } from '../config';
 
 const field = 'w-full bg-paperDark border border-controlDark text-inkLight p-3 focus:border-terracottaDark transition-colors';
 const label = 'font-mono text-xs text-terracottaDark uppercase tracking-widest';
+const tool = 'px-2.5 py-1.5 border border-controlDark text-graphiteLight font-mono text-xs hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer';
+const action = 'px-4 py-3 border border-controlDark text-graphiteLight font-mono text-xs tracking-widest uppercase hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer';
+const rules = JSON.stringify({ tags: TAGS, statuses: STATUSES, stages: STAGES });
 ---
 
-<Layout title="Write | Project Lazarus" description="Draft a new transmission.">
-  <main class="max-w-4xl mx-auto py-24 px-4 sm:px-6" data-repo={REPO} data-branch={BRANCH}>
-    <header class="mb-12">
+<Layout title="Write | Project Lazarus" description="Draft a new essay or note.">
+  <main id="studio" class="max-w-5xl mx-auto py-24 px-4 sm:px-6" data-repo={REPO} data-branch={BRANCH} data-rules={rules}>
+    <header class="mb-10">
       <h1 class="font-serif text-4xl text-inkLight mb-2">Terminal // Write</h1>
-      <p class="font-mono text-graphiteLight text-sm uppercase tracking-widest">Construct New Transmission</p>
+      <p class="font-mono text-graphiteLight text-sm uppercase tracking-widest">Construct a new transmission</p>
     </header>
 
-    <form id="write-form" class="space-y-6 bg-[rgb(var(--well))] p-8 border border-hairlineDark shadow-2xl" novalidate>
-      <div class="space-y-2">
-        <label for="title" class={label}>Title</label>
-        <input type="text" id="title" required placeholder="The End of History" class={`${field} font-serif`} />
-      </div>
+    <form id="write-form" class="space-y-8" novalidate autocomplete="off">
+      <fieldset class="flex gap-6 font-mono text-sm text-graphiteLight">
+        <legend class={`${label} mb-2`}>Type</legend>
+        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="kind" value="essay" checked class="accent-[rgb(var(--accent))]" /> Essay (finished)</label>
+        <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="kind" value="note" class="accent-[rgb(var(--accent))]" /> Note (growing)</label>
+      </fieldset>
 
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <section aria-label="Details" class="grid gap-6 md:grid-cols-2 bg-[rgb(var(--well))] border border-hairlineDark p-6">
+        <div class="space-y-2 md:col-span-2">
+          <label for="title" class={label}>Title</label>
+          <input type="text" id="title" placeholder="Why magnets forget" class={`${field} font-serif text-xl`} />
+        </div>
+        <div class="space-y-2">
+          <label for="slug" class={label}>URL slug</label>
+          <input type="text" id="slug" class={`${field} font-mono text-sm`} />
+          <p id="slug-hint" class="font-mono text-xs text-graphiteLight"></p>
+        </div>
+        <div class="space-y-2">
+          <label for="date" class={label}>Date</label>
+          <input type="text" id="date" class={`${field} font-mono text-sm`} inputmode="numeric" />
+        </div>
         <div class="space-y-2">
           <label for="tag" class={label}>Tag</label>
-          <select id="tag" class={`${field} font-mono text-sm`}>
-            {TAGS.map((t) => <option value={t}>{t}</option>)}
-          </select>
+          <select id="tag" class={`${field} font-mono text-sm`}>{TAGS.map((t) => <option value={t} selected={t === 'LOG'}>{t}</option>)}</select>
+        </div>
+        <div class="space-y-2">
+          <label for="topics" class={label}>Topics (comma separated)</label>
+          <input type="text" id="topics" placeholder="statistical mechanics, phase transitions" class={`${field} font-mono text-sm`} />
         </div>
         <div class="space-y-2">
           <label for="status" class={label}>Epistemic status</label>
-          <select id="status" class={`${field} font-mono text-sm`}>
-            <option value="">(none)</option>
-            {STATUSES.map((s) => <option value={s}>{s}</option>)}
-          </select>
+          <select id="status" class={`${field} font-mono text-sm`}><option value="">(none)</option>{STATUSES.map((s) => <option value={s}>{s}</option>)}</select>
         </div>
         <div class="space-y-2">
           <label for="stage" class={label}>Growth stage</label>
-          <select id="stage" class={`${field} font-mono text-sm`}>
-            <option value="">(none)</option>
-            {STAGES.map((s) => <option value={s}>{s}</option>)}
-          </select>
+          <select id="stage" class={`${field} font-mono text-sm`}><option value="">(default)</option>{STAGES.map((s) => <option value={s}>{s}</option>)}</select>
         </div>
-      </div>
-
-      <div class="space-y-2">
-        <label for="topics" class={label}>Topics (comma separated)</label>
-        <input type="text" id="topics" placeholder="statistical mechanics, phase transitions" class={`${field} font-mono text-sm`} />
-      </div>
-
-      <div class="space-y-2">
-        <label for="description" class={label}>Description</label>
-        <textarea id="description" rows="2" placeholder="A brief summary of the essay..." class={`${field} text-graphiteLight font-serif`}></textarea>
-      </div>
-
-      <div class="space-y-2">
-        <label for="content" class={label}>Content (MDX)</label>
-        <textarea id="content" rows="16" placeholder="Write your transmission here. Math: $E = mc^2$" class={`${field} text-graphiteLight font-mono text-sm leading-relaxed`}></textarea>
-        <p id="counter" class="font-mono text-xs text-graphiteLight" aria-live="polite"></p>
-      </div>
-
-      <div class="pt-4 flex flex-wrap gap-4 justify-between items-center">
-        <span id="message" role="status" class="text-xs font-mono text-graphiteLight">Drafts save in this browser automatically.</span>
-        <div class="flex gap-3">
-          <button type="button" id="copy-btn" class="px-4 py-3 border border-controlDark text-graphiteLight font-mono text-sm tracking-widest uppercase hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer">Copy</button>
-          <button type="button" id="publish-btn" class="px-6 py-3 bg-terracottaDark text-paperDark font-mono text-sm tracking-widest uppercase hover:opacity-90 transition-opacity cursor-pointer">Open in GitHub</button>
+        <div class="space-y-2 md:col-span-2">
+          <label for="description" class={label}>Description</label>
+          <textarea id="description" rows="2" placeholder="One sentence for link previews and feeds." class={`${field} text-graphiteLight`}></textarea>
+          <p id="description-count" class="font-mono text-xs text-graphiteLight" aria-live="polite"></p>
         </div>
-      </div>
+        <label class="md:col-span-2 flex items-center gap-2 font-mono text-xs text-graphiteLight cursor-pointer">
+          <input type="checkbox" id="draft" class="accent-[rgb(var(--accent))]" /> Publish as a draft (hidden from every list, feed and search until you remove <code>draft: true</code>)
+        </label>
+      </section>
+
+      <section aria-label="Editor">
+        <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+          <div role="toolbar" aria-label="Formatting" class="flex flex-wrap gap-2">
+            <button type="button" data-act="bold" class={tool} aria-label="Bold" title="Bold (Ctrl/Cmd+B)"><b>B</b></button>
+            <button type="button" data-act="italic" class={tool} aria-label="Italic" title="Italic (Ctrl/Cmd+I)"><i>I</i></button>
+            <button type="button" data-act="link" class={tool} aria-label="Link" title="Link (Ctrl/Cmd+K)">Link</button>
+            <button type="button" data-act="code" class={tool} aria-label="Code">{'</>'}</button>
+            <button type="button" data-act="h2" class={tool} aria-label="Heading">H2</button>
+            <button type="button" data-act="quote" class={tool} aria-label="Quote">“ ”</button>
+            <button type="button" data-act="math" class={tool} aria-label="Math">∑</button>
+            <label class={`${tool} cursor-pointer`}>
+              Image
+              <input id="file-input" type="file" accept="image/*" multiple class="sr-only" />
+            </label>
+            <select id="insert" aria-label="Insert component" class={`${tool} bg-paperDark`}>
+              <option value="">+ Insert…</option>
+              <option value="Callout">Callout (TL;DR)</option>
+              <option value="Sidenote">Sidenote</option>
+              <option value="Cite">Citation</option>
+              <option value="References">References list</option>
+              <option value="Ising">Ising explorable</option>
+              <option value="PredictReveal">Predict, then reveal</option>
+            </select>
+          </div>
+          <div role="tablist" aria-label="Editor view" class="flex font-mono text-xs">
+            <button type="button" role="tab" id="tab-write" aria-selected="true" aria-controls="content" class="px-4 py-2 border border-controlDark aria-selected:text-terracottaDark aria-selected:border-terracottaDark text-graphiteLight cursor-pointer">Write</button>
+            <button type="button" role="tab" id="tab-preview" aria-selected="false" aria-controls="preview" class="px-4 py-2 border border-l-0 border-controlDark aria-selected:text-terracottaDark aria-selected:border-terracottaDark text-graphiteLight cursor-pointer">Preview</button>
+          </div>
+        </div>
+
+        <div id="dropzone" class="relative">
+          <label for="content" class="sr-only">Content (MDX)</label>
+          <textarea id="content" rows="20" placeholder="Write here. Drop or paste images, use $math$, link entries with [[slug]]." class={`${field} text-inkLight font-mono text-sm leading-relaxed`}></textarea>
+          <div id="preview" hidden role="tabpanel" aria-labelledby="tab-preview" class="prose-lazarus font-serif text-lg leading-relaxed text-inkLight border border-controlDark p-6 min-h-[28rem] bg-paperDark"></div>
+          <p id="drop-hint" hidden class="absolute inset-0 flex items-center justify-center bg-paperDark/90 border-2 border-dashed border-terracottaDark font-mono text-terracottaDark pointer-events-none">Drop images to add them</p>
+        </div>
+        <p id="counter" class="mt-2 font-mono text-xs text-graphiteLight" aria-live="polite"></p>
+      </section>
+
+      <section aria-labelledby="images-h" id="images-section" hidden>
+        <h2 id="images-h" class={`${label} mb-3`}>Images</h2>
+        <p class="font-mono text-xs text-graphiteLight mb-4">Resized to 1600px and converted to WebP in your browser. Every image needs alt text for readers who cannot see it.</p>
+        <ul id="images" class="space-y-4"></ul>
+      </section>
+
+      <section aria-label="Problems" id="problems" hidden class="border border-terracottaDark p-4 font-mono text-sm space-y-2">
+        <ul id="errors" role="alert" class="list-disc pl-5 text-terracottaDark"></ul>
+        <ul id="warnings" class="list-disc pl-5 text-graphiteLight"></ul>
+      </section>
+
+      <section aria-label="Publish" class="space-y-4 bg-[rgb(var(--well))] border border-hairlineDark p-6">
+        <details id="token-panel">
+          <summary class="font-mono text-xs uppercase tracking-widest text-graphiteLight hover:text-terracottaDark cursor-pointer">Connect GitHub to publish with one click</summary>
+          <div class="mt-4 space-y-3 font-mono text-xs text-graphiteLight leading-relaxed">
+            <p>Create a <a class="underline" href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">fine-grained token</a> limited to <b>{REPO}</b> with <b>Contents: read and write</b> and <b>Pull requests: read and write</b>. Publishing commits your post and images to a new branch and opens a pull request, so CI checks it before anything goes live.</p>
+            <label class="block">
+              <span class={label}>Token</span>
+              <input type="password" id="token" autocomplete="off" spellcheck="false" class={`${field} mt-1`} placeholder="github_pat_…" />
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="checkbox" id="remember" class="accent-[rgb(var(--accent))]" /> Remember it in this browser (stored unencrypted; skip this on a shared computer)</label>
+          </div>
+        </details>
+
+        <div class="flex flex-wrap gap-3">
+          <button type="button" id="publish-pr" class="px-6 py-3 bg-terracottaDark text-paperDark font-mono text-xs tracking-widest uppercase hover:opacity-90 transition-opacity cursor-pointer">Open pull request</button>
+          <button type="button" id="download-zip" class={action}>Download .zip</button>
+          <button type="button" id="copy-md" class={action}>Copy Markdown</button>
+          <button type="button" id="open-github" class={action}>Open in GitHub (text only)</button>
+          <button type="button" id="clear" class={`${action} ml-auto`}>Clear draft</button>
+        </div>
+        <p id="message" role="status" class="font-mono text-xs text-graphiteLight min-h-[1.25rem]">Drafts, including images, save in this browser automatically.</p>
+      </section>
     </form>
   </main>
 </Layout>
 
 <script>
-  const KEY = 'lazarus-draft';
-  // GitHub's "new file" URL carries the whole post, and very long URLs get truncated.
-  const URL_LIMIT = 7000;
-
+  import { initStudio } from '../lib/write/studio';
   document.addEventListener('astro:page-load', () => {
-    const root = document.querySelector<HTMLElement>('main[data-repo]');
-    const form = document.getElementById('write-form');
-    if (!root || !form) return;
-
-    const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
-    const ids = ['title', 'tag', 'status', 'stage', 'topics', 'description', 'content'] as const;
-    const message = $('message');
-    const say = (text: string) => (message.textContent = text);
-
-    // --- autosave ---
-    try {
-      const saved = JSON.parse(localStorage.getItem(KEY) ?? '{}');
-      for (const id of ids) if (saved[id] != null) $<HTMLInputElement>(id).value = saved[id];
-    } catch {}
-    const counter = $('counter');
-    const refresh = () => {
-      const words = $<HTMLTextAreaElement>('content').value.match(/\w+/g)?.length ?? 0;
-      counter.textContent = `${words} words`;
-    };
-    form.addEventListener('input', () => {
-      try {
-        localStorage.setItem(KEY, JSON.stringify(Object.fromEntries(ids.map((id) => [id, $<HTMLInputElement>(id).value]))));
-      } catch {}
-      refresh();
-    });
-    refresh();
-
-    const q = (s: string) => JSON.stringify(s); // a JSON string is a valid YAML double-quoted scalar
-
-    const build = () => {
-      const title = $<HTMLInputElement>('title').value.trim();
-      if (!title) { say('A transmission needs a title.'); $('title').focus(); return null; }
-      const topics = $<HTMLInputElement>('topics').value.split(',').map((t) => t.trim()).filter(Boolean);
-      const d = new Date();
-      const date = `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
-      const lines = [`title: ${q(title)}`, `date: ${q(date)}`, `tag: ${q($<HTMLSelectElement>('tag').value)}`];
-      if (topics.length) lines.push(`topics: [${topics.map(q).join(', ')}]`);
-      const status = $<HTMLSelectElement>('status').value;
-      const stage = $<HTMLSelectElement>('stage').value;
-      const desc = $<HTMLTextAreaElement>('description').value.trim();
-      if (status) lines.push(`status: ${q(status)}`);
-      if (stage) lines.push(`stage: ${q(stage)}`);
-      if (desc) lines.push(`description: ${q(desc)}`);
-      const slug = title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'untitled';
-      return { slug, md: `---\n${lines.join('\n')}\n---\n\n${$<HTMLTextAreaElement>('content').value}\n` };
-    };
-
-    $('copy-btn').addEventListener('click', async () => {
-      const post = build();
-      if (!post) return;
-      await navigator.clipboard.writeText(post.md);
-      say(`Copied. Save it as src/content/blog/${post.slug}.mdx`);
-    });
-
-    $('publish-btn').addEventListener('click', () => {
-      const post = build();
-      if (!post) return;
-      const url = new URL(`https://github.com/${root.dataset.repo}/new/${root.dataset.branch}/src/content/blog`);
-      url.searchParams.set('filename', `${post.slug}.mdx`);
-      url.searchParams.set('value', post.md);
-      if (url.toString().length > URL_LIMIT) {
-        say('Too long for a GitHub link. Use Copy, then paste into a new file on GitHub.');
-        return;
-      }
-      window.open(url.toString(), '_blank', 'noopener');
-      say('Opened GitHub. Commit the file there to publish.');
-    });
+    const root = document.getElementById('studio');
+    if (root) initStudio(root);
   });
 </script>

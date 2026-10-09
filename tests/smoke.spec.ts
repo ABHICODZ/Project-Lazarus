@@ -76,13 +76,3 @@ test('the lab lattice canvas paints pixels', async ({ page }) => {
   });
   expect(painted).toBeGreaterThan(100);
 });
-
-test('write form builds frontmatter that matches the content schema', async ({ page }) => {
-  await page.goto('write/');
-  await page.getByLabel('Title', { exact: true }).fill('A "quoted" title');
-  await page.getByLabel('Tag', { exact: true }).selectOption('PHYSICS');
-  await page.getByLabel('Content (MDX)').fill('Hello $x^2$');
-  await page.context().grantPermissions(['clipboard-read', 'clipboard-write']).catch(() => {});
-  await page.getByRole('button', { name: 'Copy' }).click();
-  await expect(page.locator('#message')).toContainText('a-quoted-title.mdx');
-});

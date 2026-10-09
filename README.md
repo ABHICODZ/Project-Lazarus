@@ -15,6 +15,12 @@ Dark and light themes, EB Garamond and Courier Prime, terracotta accents.
 - An Ising model simulator (Metropolis dynamics, seeded, URL-backed temperature) and a predict-then-reveal widget.
 - `<Cite id="..." />` and `<References ids={[...]} />`, backed by [`src/data/references.json`](src/data/references.json).
 
+**Write studio** (`/write`)
+- Drop, paste or pick images: they are resized to 1600px and converted to WebP in the browser, need alt text, and become `<Figure>`s that Astro optimises (responsive sizes) at build time.
+- Live preview with math, formatting toolbar, a component inserter, and validation that mirrors the content schema.
+- Drafts, including images, are saved in the browser.
+- Publish by opening a pull request (a fine-grained GitHub token commits the post and images to a new branch, so CI checks it first), download a `.zip` to unzip into the repo, or copy the Markdown.
+
 **Garden**
 - Essays (`src/content/blog`) and short notes (`src/content/notes`, default stage "seedling").
 - `[[wiki links]]` between any entries, with "Mentioned in" backlinks. A link to a page that does not exist fails the build.
@@ -52,7 +58,7 @@ Preview drafts with `INCLUDE_DRAFTS=1 npm run build`.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the frontmatter fields and components. Two ways to publish:
 
-1. **In the browser:** open `/write`, draft, and either open the pre-filled GitHub "new file" page or copy the Markdown.
+1. **In the browser:** open `/write`, draft (with images), then open a pull request, download the `.zip`, or copy the Markdown. See [Publishing from /write](CONTRIBUTING.md#publishing-from-write).
 2. **Locally:** add an `.mdx` file to `src/content/blog/` (essay) or `src/content/notes/` (note) and push to `main`.
 
 ## Hosting

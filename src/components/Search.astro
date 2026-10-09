@@ -55,6 +55,7 @@ import { base } from '../utils/date';
     document.addEventListener(type, (e) => { if ((e.target as Element)?.closest?.('[data-search-open]')) load().catch(() => {}); }, true);
   }
   document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented) return; // e.g. the editor on /write already claimed Ctrl/Cmd+K for "insert link"
     const typing = (e.target as HTMLElement)?.matches?.('input, textarea, select, [contenteditable]');
     const combo = (e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey);
     if (combo && document.querySelector('[data-search-open]')) { e.preventDefault(); open(); }
