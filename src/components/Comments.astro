@@ -1,0 +1,36 @@
+---
+import { GISCUS } from '../config';
+const enabled = Boolean(GISCUS.repoId && GISCUS.categoryId);
+---
+{enabled && (
+  <section aria-labelledby="comments-h" class="mt-16">
+    <h2 id="comments-h" class="font-mono text-xs text-terracottaDark uppercase tracking-widest mb-4">Discussion</h2>
+    <div id="giscus-host" data-repo={GISCUS.repo} data-repo-id={GISCUS.repoId} data-category={GISCUS.category} data-category-id={GISCUS.categoryId}></div>
+  </section>
+)}
+
+{enabled && <script>
+  const themeName = () => (document.documentElement.dataset.theme === 'light' ? 'light' : 'dark_dimmed');
+
+  document.addEventListener('astro:page-load', () => {
+    const host = document.getElementById('giscus-host');
+    if (!host || host.querySelector('iframe') || host.querySelector('script')) return;
+    const s = document.createElement('script');
+    s.src = 'https://giscus.app/client.js';
+    s.async = true;
+    s.crossOrigin = 'anonymous';
+    const attrs: Record<string, string> = {
+      repo: host.dataset.repo!, 'repo-id': host.dataset.repoId!, category: host.dataset.category!,
+      'category-id': host.dataset.categoryId!, mapping: 'pathname', strict: '1', 'reactions-enabled': '1',
+      'emit-metadata': '0', 'input-position': 'top', theme: themeName(), lang: 'en', loading: 'lazy',
+    };
+    for (const [k, v] of Object.entries(attrs)) s.setAttribute(`data-${k}`, v);
+    host.appendChild(s);
+  });
+
+  // Keep the widget in step with the site's theme toggle.
+  new MutationObserver(() => {
+    document.querySelector<HTMLIFrameElement>('iframe.giscus-frame')?.contentWindow?.postMessage(
+      { giscus: { setConfig: { theme: themeName() } } }, 'https://giscus.app');
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+</script>}

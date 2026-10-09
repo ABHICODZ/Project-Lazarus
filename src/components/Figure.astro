@@ -1,0 +1,26 @@
+---
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+  /** An imported image (optimised and sized at build time) or a plain URL. */
+  src: ImageMetadata | string;
+  alt: string;
+  caption?: string;
+  num?: number | string;
+}
+const { src, alt, caption, num } = Astro.props;
+const href = typeof src === 'string' ? src : src.src;
+---
+<figure class="my-10 -mx-4 md:-mx-12 not-prose">
+  <a href={href} target="_blank" rel="noopener" class="block border border-hairlineDark bg-[rgb(var(--well))] p-2 hover:border-terracottaDark transition-colors">
+    {typeof src === 'string'
+      ? <img src={src} alt={alt} loading="lazy" decoding="async" class="mx-auto max-h-[28rem] w-auto" />
+      : <Image src={src} alt={alt} widths={[480, 800, 1200]} sizes="(min-width: 768px) 44rem, 100vw" loading="lazy" decoding="async" class="mx-auto max-h-[28rem] w-auto" />}
+  </a>
+  {caption && (
+    <figcaption class="mt-2 px-1 font-mono text-xs text-graphiteLight leading-relaxed">
+      {num && <span class="text-terracottaDark">Fig. {num}. </span>}{caption}
+    </figcaption>
+  )}
+</figure>

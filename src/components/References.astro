@@ -1,0 +1,22 @@
+---
+import refs from '../data/references.json';
+interface Props { ids: string[] }
+const { ids } = Astro.props;
+type Ref = { authors: string; year: number; title: string; venue: string; url: string };
+const table = refs as Record<string, Ref>;
+const items = ids.map((id) => {
+  if (!table[id]) throw new Error(`<References>: no entry "${id}" in src/data/references.json`);
+  return { id, ...table[id] };
+}).sort((a, b) => a.authors.localeCompare(b.authors));
+---
+<section aria-labelledby="references-h" class="mt-16">
+  <h2 id="references-h">References</h2>
+  <ol class="not-prose font-mono text-sm leading-relaxed space-y-3 !list-none !pl-0">
+    {items.map((r) => (
+      <li id={`ref-${r.id}`} class="scroll-mt-8 target:text-terracottaDark">
+        {r.authors} ({r.year}). {r.title}. <em>{r.venue}</em>.
+        {' '}<a href={r.url} rel="noopener" class="break-all">{r.url}</a>
+      </li>
+    ))}
+  </ol>
+</section>

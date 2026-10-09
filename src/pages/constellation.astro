@@ -1,0 +1,150 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { getEntries, graph } from '../utils/posts';
+
+const entries = await getEntries();
+const data = graph(entries);
+---
+<Layout title="Constellation | Project Lazarus" description="Every piece on the site, connected by links and shared topics.">
+  <main class="max-w-4xl mx-auto px-4 py-24 relative">
+    <SiteHeader title="Constellation" subtitle="Solid lines are links. Faint lines share a topic." />
+
+    <div class="relative border border-hairlineDark bg-[rgb(var(--well))]">
+      <canvas id="constellation" role="img" aria-label={`Graph of ${data.nodes.length} pieces. A list of the same pieces follows.`} class="w-full h-[28rem] block"></canvas>
+      <p id="constellation-hover" class="absolute left-3 bottom-3 font-mono text-xs text-graphiteLight pointer-events-none" aria-hidden="true"></p>
+    </div>
+    <script type="application/json" id="constellation-data" set:html={JSON.stringify(data)}></script>
+
+    <ul class="mt-10 columns-1 md:columns-2 gap-8 font-serif text-lg">
+      {data.nodes.map((n) => (
+        <li class="break-inside-avoid mb-2">
+          <a href={n.href} class="underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4">{n.title}</a>
+          <span class="font-mono text-xs text-graphiteLight"> [{n.kind === 'notes' ? 'NOTE' : n.tag}]</span>
+        </li>
+      ))}
+    </ul>
+  </main>
+</Layout>
+
+<script>
+  import { navigate } from 'astro:transitions/client';
+  import { rng, whileVisible, cssRgb } from '../lib/explorable';
+
+  type Node = { id: string; title: string; href: string; tag: string; kind: string; x: number; y: number; vx: number; vy: number };
+  type Edge = { a: number; b: number; strong: boolean };
+
+  function init(canvas: HTMLCanvasElement) {
+    if (canvas.dataset.ready) return;
+    canvas.dataset.ready = '1';
+    const raw = JSON.parse(document.getElementById('constellation-data')!.textContent!) as { nodes: Omit<Node, 'x' | 'y' | 'vx' | 'vy'>[]; edges: Edge[] };
+    const hover = document.getElementById('constellation-hover')!;
+    const ctx = canvas.getContext('2d')!;
+    const dpr = Math.min(devicePixelRatio || 1, 2);
+    let W = 0, H = 0;
+
+    const random = rng(42);
+    const nodes: Node[] = raw.nodes.map((n) => ({ ...n, x: (random() - 0.5) * 300, y: (random() - 0.5) * 300, vx: 0, vy: 0 }));
+    const edges = raw.edges;
+
+    function resize() {
+      W = canvas.clientWidth; H = canvas.clientHeight;
+      canvas.width = W * dpr; canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    // One physics step: nodes repel, edges act as springs, gravity pulls toward the centre.
+    function tick(alpha: number) {
+      for (let i = 0; i < nodes.length; i++) {
+        for (let j = i + 1; j < nodes.length; j++) {
+          const a = nodes[i], b = nodes[j];
+          let dx = b.x - a.x, dy = b.y - a.y;
+          const d2 = Math.max(dx * dx + dy * dy, 25);
+          const f = (1800 / d2) * alpha, d = Math.sqrt(d2);
+          dx /= d; dy /= d;
+          a.vx -= dx * f; a.vy -= dy * f; b.vx += dx * f; b.vy += dy * f;
+        }
+      }
+      for (const e of edges) {
+        const a = nodes[e.a], b = nodes[e.b];
+        const dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 1;
+        const rest = e.strong ? 70 : 150, k = (e.strong ? 0.06 : 0.012) * alpha;
+        const f = (d - rest) * k;
+        a.vx += (dx / d) * f; a.vy += (dy / d) * f; b.vx -= (dx / d) * f; b.vy -= (dy / d) * f;
+      }
+      for (const n of nodes) {
+        n.vx += -n.x * 0.01 * alpha; n.vy += -n.y * 0.01 * alpha;
+        n.vx *= 0.82; n.vy *= 0.82;
+        n.x += n.vx; n.y += n.vy;
+      }
+    }
+
+    let hot: Node | null = null;
+    // Scale the settled layout to fill the canvas (a small garden would otherwise huddle in the middle).
+    let scale = 1;
+    const fit = () => {
+      const maxR = Math.max(1, ...nodes.map((n) => Math.hypot(n.x, n.y)));
+      scale = Math.min(2.4, Math.max(0.5, (Math.min(W, H) / 2 - 60) / maxR));
+    };
+    const screen = (n: Node): [number, number] => [W / 2 + n.x * scale, H / 2 + n.y * scale];
+
+    function draw() {
+      const ink = cssRgb('ink'), accent = cssRgb('accent'), line = cssRgb('hairline'), graphite = cssRgb('graphite');
+      ctx.clearRect(0, 0, W, H);
+      for (const e of edges) {
+        const [ax, ay] = screen(nodes[e.a]), [bx, by] = screen(nodes[e.b]);
+        const touches = hot && (nodes[e.a] === hot || nodes[e.b] === hot);
+        ctx.strokeStyle = touches ? `rgb(${accent})` : `rgba(${e.strong ? graphite : line}, ${e.strong ? 0.9 : 0.5})`;
+        ctx.lineWidth = e.strong ? 1.4 : 0.8;
+        ctx.beginPath(); ctx.moveTo(ax, ay); ctx.lineTo(bx, by); ctx.stroke();
+      }
+      ctx.font = '11px "Courier Prime", monospace';
+      for (const n of nodes) {
+        const [x, y] = screen(n);
+        const isHot = n === hot;
+        ctx.beginPath(); ctx.arc(x, y, isHot ? 7 : 5, 0, Math.PI * 2);
+        if (n.kind === 'notes') { ctx.strokeStyle = `rgb(${accent})`; ctx.lineWidth = 1.5; ctx.stroke(); }
+        else { ctx.fillStyle = `rgb(${accent})`; ctx.fill(); }
+        if (isHot || nodes.length <= 14) {
+          ctx.fillStyle = `rgb(${isHot ? ink : graphite})`;
+          ctx.fillText(n.title.length > 34 ? n.title.slice(0, 33) + '…' : n.title, x + 11, y + 4);
+        }
+      }
+    }
+
+    // Settle quickly: step the simulation to rest before showing anything.
+    resize();
+    for (let i = 0; i < 400; i++) tick(1 - i / 400 * 0.9);
+    fit();
+    draw();
+
+    // The layout is static (no ongoing animation), so reduced-motion needs no special case. Redraw only when visible.
+    let visible = true;
+    whileVisible(canvas, (v) => { visible = v; if (v) draw(); });
+    new ResizeObserver(() => { resize(); fit(); draw(); }).observe(canvas);
+    new MutationObserver(() => draw()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    const pick = (ev: MouseEvent) => {
+      const r = canvas.getBoundingClientRect();
+      const mx = ev.clientX - r.left, my = ev.clientY - r.top;
+      let best: Node | null = null, bd = 14;
+      for (const n of nodes) { const [x, y] = screen(n); const d = Math.hypot(x - mx, y - my); if (d < bd) { bd = d; best = n; } }
+      return best;
+    };
+    canvas.addEventListener('mousemove', (ev) => {
+      const n = pick(ev);
+      if (n === hot) return;
+      hot = n; canvas.style.cursor = n ? 'pointer' : 'default';
+      hover.textContent = n ? `${n.title}  [${n.kind === 'notes' ? 'NOTE' : n.tag}]` : '';
+      if (visible) draw();
+    });
+    canvas.addEventListener('mouseleave', () => { hot = null; hover.textContent = ''; draw(); });
+    canvas.addEventListener('click', (ev) => { const n = pick(ev); if (n) navigate(n.href); });
+
+  }
+
+  document.addEventListener('astro:page-load', () => {
+    const c = document.getElementById('constellation') as HTMLCanvasElement | null;
+    if (c) init(c);
+  });
+</script>

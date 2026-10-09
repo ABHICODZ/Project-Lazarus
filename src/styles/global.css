@@ -1,0 +1,133 @@
+@import 'tailwindcss';
+
+/* Colours resolve to the theme variables below, so every utility (and its opacity modifiers) follows the active theme. */
+@theme inline {
+  --color-paperDark: rgb(var(--paper));
+  --color-inkLight: rgb(var(--ink));
+  --color-graphiteLight: rgb(var(--graphite));
+  --color-terracottaDark: rgb(var(--accent));
+  --color-hairlineDark: rgb(var(--hairline));
+  --color-controlDark: rgb(var(--control));
+  --font-serif: 'EB Garamond Variable', 'EB Garamond', Georgia, serif;
+  --font-mono: 'Courier Prime', ui-monospace, monospace;
+}
+
+/* ---- Theme tokens (RGB triplets so Tailwind opacity modifiers work) ---- */
+:root {
+  --paper: 18 18 18;
+  --ink: 244 242 236;
+  --graphite: 176 174 168;
+  --accent: 224 109 92;
+  --hairline: 74 74 74;
+  --control: 125 123 118;
+  --well: 10 10 10;
+  --bg-opacity: 0.25;
+  --bg-blend: screen;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --paper: 245 241 230;
+  --ink: 28 26 23;
+  --graphite: 98 94 86;
+  --accent: 168 62 44;
+  --hairline: 201 194 177;
+  --control: 122 116 102;
+  --well: 236 231 216;
+  --bg-opacity: 0.08;
+  --bg-blend: multiply;
+  color-scheme: light;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+  body { font-family: var(--font-serif); font-kerning: normal; font-variant-ligatures: common-ligatures; }
+  :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
+  ::selection { background: rgb(var(--accent) / 0.35); }
+  h1, h2, h3 { text-wrap: balance; }
+}
+
+.skip-link {
+  position: absolute; left: 1rem; top: -4rem; z-index: 100;
+  padding: .5rem 1rem; background: rgb(var(--paper)); color: rgb(var(--accent));
+  border: 1px solid rgb(var(--accent)); font-family: var(--font-mono);
+}
+.skip-link:focus { top: 1rem; }
+
+/* ---- Article prose ---- */
+.prose-lazarus { text-wrap: pretty; hanging-punctuation: first; }
+.prose-lazarus > * + * { margin-top: 1.5rem; }
+.prose-lazarus h2, .prose-lazarus h3 { font-family: var(--font-serif); line-height: 1.2; margin-top: 3rem; position: relative; }
+.prose-lazarus h2 { font-size: 1.875rem; }
+.prose-lazarus h3 { font-size: 1.4rem; font-style: italic; }
+.prose-lazarus h2 .anchor, .prose-lazarus h3 .anchor {
+  position: absolute; right: 100%; padding-right: .5rem; opacity: 0; color: rgb(var(--accent));
+  font-family: var(--font-mono); text-decoration: none; font-size: .9em;
+}
+.prose-lazarus h2:hover .anchor, .prose-lazarus h3:hover .anchor, .prose-lazarus .anchor:focus { opacity: 1; }
+.prose-lazarus a { text-decoration: underline; text-decoration-color: rgb(var(--accent)); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.prose-lazarus a:hover { color: rgb(var(--accent)); }
+.prose-lazarus ul { list-style: square; padding-left: 1.5rem; }
+.prose-lazarus ol { list-style: decimal; padding-left: 1.5rem; }
+.prose-lazarus li::marker { color: rgb(var(--accent)); }
+.prose-lazarus li + li { margin-top: .4rem; }
+.prose-lazarus blockquote { border-left: 2px solid rgb(var(--accent)); padding-left: 1.25rem; font-style: italic; color: rgb(var(--graphite)); }
+.prose-lazarus hr { border: 0; text-align: center; color: rgb(var(--graphite)); }
+.prose-lazarus hr::before { content: '∗ ∗ ∗'; letter-spacing: .5em; }
+.prose-lazarus :not(pre) > code { font-family: var(--font-mono); font-size: .85em; padding: .1em .35em; background: rgb(var(--well)); border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus pre { font-family: var(--font-mono); font-size: .85rem; line-height: 1.6; padding: 1.25rem; overflow-x: auto; border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus table { width: 100%; font-family: var(--font-mono); font-size: .85rem; border-collapse: collapse; }
+.prose-lazarus th, .prose-lazarus td { border-bottom: 1px solid rgb(var(--hairline)); padding: .5rem .75rem; text-align: left; }
+.prose-lazarus th { color: rgb(var(--accent)); font-weight: 700; }
+.prose-lazarus img { max-width: 100%; height: auto; }
+.prose-lazarus > p:first-of-type::first-letter { font-size: 3.4em; float: left; line-height: .85; padding: .08em .1em 0 0; color: rgb(var(--accent)); }
+
+/* Shiki dual theme: switch on our own toggle, not just the OS setting */
+.astro-code, .astro-code span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+:root[data-theme='light'] .astro-code, :root[data-theme='light'] .astro-code span {
+  color: var(--shiki-light); background-color: var(--shiki-light-bg);
+}
+
+/* KaTeX */
+.katex { font-size: 1.05em; }
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: .5rem 0; }
+
+/* Hover images: pointer devices only, and never for reduced-motion */
+@media (hover: none) { .hover-reveal .img-popup { display: none; } }
+
+/* Tables and figures line up better with tabular numerals */
+.prose-lazarus table, .explorable { font-variant-numeric: tabular-nums; }
+
+/* ---- Print: a post should print like a paper ---- */
+@media print {
+  :root, :root[data-theme='dark'], :root[data-theme='light'] {
+    --paper: 255 255 255; --ink: 0 0 0; --graphite: 60 60 60; --accent: 140 40 25;
+    --hairline: 180 180 180; --control: 120 120 120; --well: 255 255 255;
+  }
+  body { background: #fff !important; }
+  body > div[aria-hidden='true'], #theme-toggle, .skip-link, #progress-bar, #toc, nav[aria-label='Breadcrumb'],
+  .copy-btn, #cite-btn, pagefind-modal-trigger, pagefind-modal, [data-explorable] button, [data-predict] button,
+  #giscus-host, footer .flex.justify-between { display: none !important; }
+  .prose-lazarus a[href^='http']::after { content: ' (' attr(href) ')'; font-size: .8em; word-break: break-all; }
+  .prose-lazarus pre { white-space: pre-wrap; border-color: #999; }
+  .sidenote-body {
+    position: static !important; opacity: 1 !important; visibility: visible !important; display: block;
+    width: auto !important; margin: .5rem 0 !important; float: none !important; transform: none !important;
+    border: 0 !important; border-left: 2px solid #999 !important; padding: 0 0 0 .75rem !important; font-size: .85rem;
+  }
+  h1, h2, h3, figure { break-after: avoid; break-inside: avoid; }
+}
+
+/* ---- /write preview stand-ins ---- */
+.pv-figure { margin: 2rem 0; }
+.pv-figure img { max-width: 100%; max-height: 22rem; margin: 0 auto; border: 1px solid rgb(var(--hairline)); padding: .5rem; }
+.pv-figure figcaption { margin-top: .5rem; font-family: var(--font-mono); font-size: .75rem; color: rgb(var(--graphite)); }
+.pv-figure figcaption b { color: rgb(var(--accent)); font-weight: 400; }
+.pv-callout { border: 1px solid rgb(var(--hairline)); border-left: 2px solid rgb(var(--accent)); background: rgb(var(--well)); padding: 1rem; margin: 1.5rem 0; }
+.pv-callout > b { display: block; margin-bottom: .5rem; font-family: var(--font-mono); font-size: .7rem; text-transform: uppercase; letter-spacing: .1em; color: rgb(var(--accent)); }
+.pv-note { color: rgb(var(--graphite)); font-size: .85em; font-style: italic; }
+.pv-component { display: block; margin: 1.5rem 0; padding: .75rem 1rem; border: 1px dashed rgb(var(--control)); font-family: var(--font-mono); font-size: .8rem; color: rgb(var(--graphite)); }
+span.pv-component { display: inline-block; margin: 0 .25rem; padding: .1rem .5rem; }

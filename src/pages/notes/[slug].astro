@@ -1,0 +1,30 @@
+---
+import { render } from 'astro:content';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { getNotes, getEntries, readingTime, related, backlinks, ogName, type Note, type Entry } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const notes = await getNotes();
+  const all = await getEntries();
+  return notes.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, newer: notes[i - 1], older: notes[i + 1], more: related(entry, all), mentions: backlinks(entry, all) },
+  }));
+}
+
+interface Props { entry: Note; newer?: Note; older?: Note; more: Entry[]; mentions: Entry[] }
+const { entry, newer, older, more, mentions } = Astro.props;
+const { Content, headings } = await render(entry);
+---
+<ArticleLayout
+  ogName={ogName(entry)}
+  math={/\$[^$\n]+\$/.test(entry.body ?? '')}
+  frontmatter={{ ...entry.data, readingTime: readingTime(entry.body) }}
+  headings={headings}
+  newer={newer}
+  older={older}
+  related={more}
+  backlinks={mentions}
+>
+  <Content />
+</ArticleLayout>

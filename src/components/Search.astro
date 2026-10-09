@@ -1,0 +1,80 @@
+---
+import { base } from '../utils/date';
+---
+<!--
+  Search is loaded on demand. Pagefind's UI is ~217 KB (JS + CSS), so the page only ships this button;
+  the bundle is fetched on hover/focus (prefetch) or first use. Pagefind writes its bundle into
+  dist/pagefind/ after `astro build` (see the postbuild script), so search does not work under `astro dev`.
+-->
+<button type="button" data-search-open data-bundle={`${base}pagefind/`}
+  class="inline-flex items-center gap-3 px-4 py-2 border border-controlDark text-graphiteLight font-mono text-xs hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer"
+  aria-label="Search this site">
+  <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true"><circle cx="7" cy="7" r="5"/><path d="M11 11l4 4"/></svg>
+  <span>Search</span>
+  <kbd class="font-mono text-[10px] border border-hairlineDark px-1.5 py-0.5">/</kbd>
+</button>
+
+<script>
+  let loading: Promise<void> | null = null;
+
+  const bundle = () => document.querySelector<HTMLElement>('[data-search-open]')?.dataset.bundle ?? '';
+
+  function load(): Promise<void> {
+    return (loading ??= new Promise<void>((resolve, reject) => {
+      const dir = bundle();
+      const css = document.createElement('link');
+      css.rel = 'stylesheet';
+      css.href = `${dir}pagefind-component-ui.css`;
+      document.head.appendChild(css);
+      const js = document.createElement('script');
+      js.type = 'module';
+      js.src = `${dir}pagefind-component-ui.js`;
+      js.onload = () => resolve();
+      js.onerror = () => { loading = null; reject(new Error('Could not load search')); };
+      document.head.appendChild(js);
+    }));
+  }
+
+  async function open() {
+    await load();
+    await customElements.whenDefined('pagefind-modal');
+    let modal = document.querySelector<HTMLElement & { open(): void }>('pagefind-modal');
+    if (!modal) {
+      // View transitions replace <body>, so the modal is recreated per page; the bundle stays loaded.
+      const config = document.createElement('pagefind-config');
+      config.setAttribute('bundle-path', bundle());
+      modal = document.createElement('pagefind-modal') as HTMLElement & { open(): void };
+      document.body.append(config, modal);
+      await customElements.whenDefined('pagefind-modal');
+    }
+    modal.open();
+  }
+
+  document.addEventListener('click', (e) => { if ((e.target as Element).closest('[data-search-open]')) open(); });
+  for (const type of ['pointerenter', 'focusin'] as const) {
+    document.addEventListener(type, (e) => { if ((e.target as Element)?.closest?.('[data-search-open]')) load().catch(() => {}); }, true);
+  }
+  document.addEventListener('keydown', (e) => {
+    if (e.defaultPrevented) return; // e.g. the editor on /write already claimed Ctrl/Cmd+K for "insert link"
+    const typing = (e.target as HTMLElement)?.matches?.('input, textarea, select, [contenteditable]');
+    const combo = (e.key === 'k' && (e.metaKey || e.ctrlKey)) || (e.key === '/' && !typing && !e.metaKey && !e.ctrlKey);
+    if (combo && document.querySelector('[data-search-open]')) { e.preventDefault(); open(); }
+  });
+</script>
+
+<style is:global>
+  /* Map Pagefind's tokens onto the site theme so search follows light and dark. */
+  :root, pagefind-modal {
+    --pf-background: rgb(var(--paper));
+    --pf-text: rgb(var(--ink));
+    --pf-text-secondary: rgb(var(--graphite));
+    --pf-text-muted: rgb(var(--graphite));
+    --pf-border: rgb(var(--control));
+    --pf-border-focus: rgb(var(--accent));
+    --pf-outline-focus: rgb(var(--accent));
+    --pf-hover: rgb(var(--well));
+    --pf-mark: rgb(var(--accent) / 0.3);
+    --pf-font: var(--font-serif);
+    --pf-border-radius: 2px;
+  }
+</style>

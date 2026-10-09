@@ -1,0 +1,169 @@
+---
+import Explorable from '../Explorable.astro';
+
+interface Props {
+  /** Prefix for URL parameters, so several instances on one page stay independent. */
+  id?: string;
+  /** Lattice side length. */
+  size?: number;
+  num?: number | string;
+}
+const { id = 'ising', size = 64, num } = Astro.props;
+const btn = 'px-3 py-2 border border-controlDark text-graphiteLight font-mono text-xs uppercase tracking-widest hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer';
+---
+<Explorable title="2D Ising model, Metropolis dynamics" num={num} source="src/components/explorables/Ising.astro">
+  <div data-ising data-id={id} data-size={size} class="grid gap-6 md:grid-cols-[minmax(0,1fr)_15rem] items-start">
+    <canvas role="img" aria-label="Ising lattice" class="w-full aspect-square max-h-[28rem] mx-auto border border-hairlineDark" style="image-rendering: pixelated"></canvas>
+
+    <div class="space-y-5 font-mono text-xs text-graphiteLight">
+      <label class="block">
+        <span class="flex justify-between uppercase tracking-widest text-terracottaDark mb-2">
+          <span>Temperature T</span><output data-temp-out class="text-inkLight">2.00</output>
+        </span>
+        <span class="relative block">
+          <input data-temp type="range" min="1" max="4" step="0.01" value="2" class="w-full accent-[rgb(var(--accent))]" />
+          <span data-tc aria-hidden="true" class="absolute top-full w-px h-2 bg-terracottaDark"></span>
+        </span>
+        <span class="block mt-4">Critical point T<sub>c</sub> ≈ 2.269</span>
+      </label>
+
+      <dl class="grid grid-cols-2 gap-y-1">
+        <dt>Magnetisation |m|</dt><dd data-m class="text-right text-inkLight">–</dd>
+        <dt>Energy per spin</dt><dd data-e class="text-right text-inkLight">–</dd>
+      </dl>
+
+      <div class="flex flex-wrap gap-2">
+        <button type="button" data-run class={btn}>Pause</button>
+        <button type="button" data-step class={btn}>Step</button>
+        <button type="button" data-reset class={btn}>Random</button>
+        <button type="button" data-cold class={btn}>All up</button>
+      </div>
+      <p data-motion-note class="hidden">Animation starts paused because your system prefers reduced motion. Use Step or Run.</p>
+    </div>
+  </div>
+
+  <Fragment slot="notes">
+    <p>Each cell holds a spin of +1 or -1. Every update picks a random cell and flips it with probability min(1, exp(-ΔE/T)), where ΔE comes from its four neighbours (J = 1, k<sub>B</sub> = 1, no external field, periodic edges).</p>
+    <p>Near T<sub>c</sub> this local update slows down badly, so expect the lattice to take a while to settle there. Cluster algorithms such as Wolff avoid this and are not used here. The run is seeded, so the same link reproduces the same start.</p>
+  </Fragment>
+  <Fragment slot="fallback">A 2D Ising lattice below T<sub>c</sub> ≈ 2.269 settles into large single-colour domains; above it, the domains dissolve into noise. Enable JavaScript to run the simulation.</Fragment>
+</Explorable>
+
+<script>
+  import { rng, readParam, writeParam, prefersReducedMotion, whileVisible, cssRgb } from '../../lib/explorable';
+
+  const TC = 2 / Math.log(1 + Math.SQRT2);
+
+  function init(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const id = root.dataset.id ?? 'ising';
+    const N = Number(root.dataset.size ?? 64);
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const canvas = q<HTMLCanvasElement>('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = canvas.height = N;
+
+    const slider = q<HTMLInputElement>('[data-temp]');
+    const tempOut = q('[data-temp-out]');
+    const mOut = q('[data-m]');
+    const eOut = q('[data-e]');
+    const runBtn = q<HTMLButtonElement>('[data-run]');
+
+    let T = readParam(`${id}.T`, 2, 1, 4);
+    const seed = readParam(`${id}.seed`, 1, 0, 1e9);
+    let random = rng(seed);
+    const spins = new Int8Array(N * N);
+    const image = ctx.createImageData(N, N);
+
+    let up = cssRgb('accent');
+    let down = cssRgb('hairline');
+
+    const randomize = () => { random = rng(seed); for (let i = 0; i < spins.length; i++) spins[i] = random() < 0.5 ? -1 : 1; };
+
+    function sweep() {
+      const cells = N * N;
+      for (let k = 0; k < cells; k++) {
+        const i = Math.floor(random() * cells);
+        const x = i % N, y = (i / N) | 0;
+        const nb = spins[y * N + ((x + 1) % N)] + spins[y * N + ((x + N - 1) % N)] + spins[((y + 1) % N) * N + x] + spins[((y + N - 1) % N) * N + x];
+        const dE = 2 * spins[i] * nb;
+        if (dE <= 0 || random() < Math.exp(-dE / T)) spins[i] = -spins[i];
+      }
+    }
+
+    let lastLabel = 0;
+    function draw() {
+      let sum = 0, bonds = 0;
+      for (let y = 0; y < N; y++) {
+        for (let x = 0; x < N; x++) {
+          const s = spins[y * N + x];
+          sum += s;
+          bonds += s * (spins[y * N + ((x + 1) % N)] + spins[((y + 1) % N) * N + x]);
+          const c = s > 0 ? up : down, o = (y * N + x) * 4;
+          image.data[o] = c[0]; image.data[o + 1] = c[1]; image.data[o + 2] = c[2]; image.data[o + 3] = 255;
+        }
+      }
+      ctx.putImageData(image, 0, 0);
+      const m = Math.abs(sum) / (N * N);
+      const e = -bonds / (N * N);
+      mOut.textContent = m.toFixed(3);
+      eOut.textContent = e.toFixed(3);
+      const now = performance.now();
+      if (now - lastLabel > 600) {
+        lastLabel = now;
+        canvas.setAttribute('aria-label', `Ising lattice, ${N} by ${N}, temperature ${T.toFixed(2)}, magnetisation ${m.toFixed(2)}`);
+      }
+    }
+
+    // --- animation loop: only runs while playing, visible and attached ---
+    let running = !prefersReducedMotion();
+    let visible = true;
+    let raf = 0;
+    const setRunLabel = () => (runBtn.textContent = running ? 'Pause' : 'Run');
+    function frame() {
+      raf = 0;
+      if (!root.isConnected) return;
+      sweep(); sweep();
+      draw();
+      ensure();
+    }
+    function ensure() {
+      if (!raf && running && visible && root.isConnected) raf = requestAnimationFrame(frame);
+    }
+
+    if (!running) q('[data-motion-note]').classList.remove('hidden');
+    whileVisible(root, (v) => { visible = v; ensure(); });
+
+    const setT = (value: number) => {
+      T = value;
+      slider.value = String(T);
+      tempOut.textContent = T.toFixed(2);
+      writeParam(`${id}.T`, T.toFixed(2));
+    };
+    slider.addEventListener('input', () => setT(Number(slider.value)));
+    runBtn.addEventListener('click', () => { running = !running; setRunLabel(); ensure(); });
+    q('[data-step]').addEventListener('click', () => { running = false; setRunLabel(); sweep(); draw(); });
+    q('[data-reset]').addEventListener('click', () => { randomize(); draw(); });
+    q('[data-cold]').addEventListener('click', () => { spins.fill(1); draw(); });
+
+    // Recolour when the site theme flips.
+    new MutationObserver(() => {
+      if (!root.isConnected) return;
+      up = cssRgb('accent'); down = cssRgb('hairline');
+      draw();
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    // Tick under the slider at T_c. The 8px inset approximates the thumb half-width.
+    q<HTMLElement>('[data-tc]').style.left = `calc(8px + (100% - 16px) * ${(TC - 1) / 3})`;
+    slider.value = String(T);
+    tempOut.textContent = T.toFixed(2);
+    setRunLabel();
+    randomize();
+    draw();
+    ensure();
+  }
+
+  document.addEventListener('astro:page-load', () => document.querySelectorAll<HTMLElement>('[data-ising]').forEach(init));
+</script>

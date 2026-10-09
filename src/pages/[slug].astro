@@ -1,26 +1,30 @@
 ---
-import { getCollection, type CollectionEntry } from 'astro:content';
+import { render } from 'astro:content';
 import ArticleLayout from '../layouts/ArticleLayout.astro';
+import { getPosts, getEntries, readingTime, related, backlinks, ogName, type Post, type Entry } from '../utils/posts';
 
 export async function getStaticPaths() {
-  const blogEntries = await getCollection('blog', ({ data }) => !data.draft);
-  return blogEntries.map((entry: CollectionEntry<'blog'>) => ({
-    params: { slug: entry.slug }, props: { entry },
+  const posts = await getPosts();
+  const all = await getEntries();
+  return posts.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, newer: posts[i - 1], older: posts[i + 1], more: related(entry, all), mentions: backlinks(entry, all) },
   }));
 }
 
-interface Props {
-  entry: CollectionEntry<'blog'>;
-}
-
-const { entry } = Astro.props;
-const { Content } = await entry.render();
-
-// Calculate estimated reading time manually
-const words = entry.body.match(/\w+/g)?.length || 0;
-const readingTime = Math.max(1, Math.ceil(words / 225)) + " min read";
+interface Props { entry: Post; newer?: Post; older?: Post; more: Entry[]; mentions: Entry[] }
+const { entry, newer, older, more, mentions } = Astro.props;
+const { Content, headings } = await render(entry);
 ---
-
-<ArticleLayout frontmatter={{ ...entry.data, readingTime }}>
+<ArticleLayout
+  ogName={ogName(entry)}
+  math={/\$[^$\n]+\$/.test(entry.body ?? '')}
+  frontmatter={{ ...entry.data, readingTime: readingTime(entry.body) }}
+  headings={headings}
+  newer={newer}
+  older={older}
+  related={more}
+  backlinks={mentions}
+>
   <Content />
 </ArticleLayout>

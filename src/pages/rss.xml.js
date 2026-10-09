@@ -1,18 +1,20 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
+import { parseDate, base } from '../utils/date';
+import { getEntries, hrefOf } from '../utils/posts';
 
 export async function GET(context) {
-  const blog = await getCollection('blog', ({ data }) => !data.draft);
-  
+  const blog = await getEntries();
+
   return rss({
     title: 'Project Lazarus',
     description: 'Research Notes & Working Papers // The Archival Rabbit Hole',
-    site: context.site,
+    // Channel link is derived from `site`, so include the base path.
+    site: new URL(base, context.site).href,
     items: blog.map((post) => ({
       title: post.data.title,
-      pubDate: new Date(post.data.date),
+      pubDate: new Date(parseDate(post.data.date)),
       description: post.data.description || '',
-      link: `/Project-Lazarus/${post.slug}/`,
+      link: hrefOf(post),
     })),
     customData: `<language>en-us</language>`,
   });

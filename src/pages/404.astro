@@ -1,0 +1,12 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { base } from '../utils/date';
+---
+<Layout title="404 | Project Lazarus" description="Page not found.">
+  <main class="max-w-[68ch] mx-auto px-4 py-32 text-center">
+    <p class="font-mono text-terracottaDark text-sm tracking-widest">ERR 404 // RECORD NOT FOUND</p>
+    <h1 class="text-5xl font-serif mt-6 mb-6">This page has been lost to the archive.</h1>
+    <p class="font-serif text-graphiteLight text-lg mb-10">Or it never existed. Entropy makes both stories equally likely.</p>
+    <a href={base} class="font-mono text-sm text-graphiteLight hover:text-terracottaDark">← Return to the index</a>
+  </main>
+</Layout>

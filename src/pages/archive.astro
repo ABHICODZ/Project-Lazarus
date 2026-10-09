@@ -1,0 +1,37 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { base, slugify } from '../utils/date';
+import { getEntries, hrefOf } from '../utils/posts';
+
+const posts = await getEntries();
+const byYear = new Map<string, typeof posts>();
+for (const p of posts) {
+  const y = p.data.date.slice(0, 4);
+  byYear.set(y, [...(byYear.get(y) ?? []), p]);
+}
+const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
+---
+<Layout title="Archive | Project Lazarus" description="Every transmission, by year and tag.">
+  <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
+    <SiteHeader title="Archive" subtitle={`${posts.length} entries`} />
+
+    <section aria-label="Tags" class="mb-16 flex flex-wrap gap-3 font-mono text-sm">
+      {tags.map((t) => <a href={`${base}tag/${slugify(t)}/`} class="text-graphiteLight hover:text-terracottaDark">[{t}]</a>)}
+    </section>
+
+    {[...byYear].map(([year, items]) => (
+      <section class="mb-12">
+        <h2 class="font-mono text-terracottaDark text-sm tracking-widest border-b border-hairlineDark pb-2 mb-4">{year}</h2>
+        <ul class="space-y-2">
+          {items.map((p) => (
+            <li class="flex gap-4 items-baseline">
+              <time class="font-mono text-xs text-graphiteLight shrink-0">{p.data.date.slice(5)}</time>
+              <a href={hrefOf(p)} class="font-serif text-lg hover:text-terracottaDark">{p.data.title}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    ))}
+  </main>
+</Layout>
