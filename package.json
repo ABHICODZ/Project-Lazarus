@@ -22,7 +22,7 @@
     "@fontsource/courier-prime": "^5.3.0",
     "@fontsource/eb-garamond": "^5.3.0",
     "@tailwindcss/vite": "^4.3.3",
-    "animejs": "^3.2.2",
+    "animejs": "^4.5.0",
     "astro": "^6.4.8",
     "dompurify": "^3.4.16",
     "fflate": "^0.8.3",
