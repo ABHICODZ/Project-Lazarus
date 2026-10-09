@@ -2,9 +2,9 @@
 import Layout from '../layouts/Layout.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import { base, slugify } from '../utils/date';
-import { getPosts } from '../utils/posts';
+import { getEntries, hrefOf } from '../utils/posts';
 
-const posts = await getPosts();
+const posts = await getEntries();
 const byYear = new Map<string, typeof posts>();
 for (const p of posts) {
   const y = p.data.date.slice(0, 4);
@@ -27,7 +27,7 @@ const tags = [...new Set(posts.flatMap((p) => p.data.tags))].sort();
           {items.map((p) => (
             <li class="flex gap-4 items-baseline">
               <time class="font-mono text-xs text-graphiteLight shrink-0">{p.data.date.slice(5)}</time>
-              <a href={`${base}${p.id}/`} class="font-serif text-lg hover:text-terracottaDark">{p.data.title}</a>
+              <a href={hrefOf(p)} class="font-serif text-lg hover:text-terracottaDark">{p.data.title}</a>
             </li>
           ))}
         </ul>

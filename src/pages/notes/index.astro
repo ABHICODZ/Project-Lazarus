@@ -1,0 +1,16 @@
+---
+import Layout from '../../layouts/Layout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import PostList from '../../components/PostList.astro';
+import { getNotes } from '../../utils/posts';
+
+const notes = await getNotes();
+---
+<Layout title="Notes | Project Lazarus" description="Short, growing notes. Seedlings, buds and evergreens.">
+  <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
+    <SiteHeader title="Notes" subtitle="Short, growing, never finished" />
+    {notes.length ? <PostList posts={notes} /> : (
+      <p class="font-serif text-graphiteLight text-lg text-center">No notes yet. They will appear here as they are planted.</p>
+    )}
+  </main>
+</Layout>

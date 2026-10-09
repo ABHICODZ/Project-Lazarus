@@ -1,9 +1,9 @@
 import rss from '@astrojs/rss';
 import { parseDate, base } from '../utils/date';
-import { getPosts } from '../utils/posts';
+import { getEntries, hrefOf } from '../utils/posts';
 
 export async function GET(context) {
-  const blog = await getPosts();
+  const blog = await getEntries();
 
   return rss({
     title: 'Project Lazarus',
@@ -14,7 +14,7 @@ export async function GET(context) {
       title: post.data.title,
       pubDate: new Date(parseDate(post.data.date)),
       description: post.data.description || '',
-      link: `${base}${post.id}/`,
+      link: hrefOf(post),
     })),
     customData: `<language>en-us</language>`,
   });

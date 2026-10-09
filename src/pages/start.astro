@@ -1,0 +1,61 @@
+---
+import Layout from '../layouts/Layout.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { getEntries, hrefOf } from '../utils/posts';
+import { base } from '../utils/date';
+
+const entries = await getEntries();
+const evergreen = entries.filter((e) => e.data.stage === 'evergreen');
+const growing = entries.filter((e) => e.data.stage === 'seedling' || e.data.stage === 'budding');
+const latest = entries.slice(0, 5);
+
+const doors = [
+  ['The Lab', 'lab', 'Interactive experiments you can break.'],
+  ['Constellation', 'constellation', 'Every piece, connected by links and shared topics.'],
+  ['Archive', 'archive', 'Everything, by year and tag.'],
+];
+---
+<Layout title="Start here | Project Lazarus" description="Where to begin: the best pieces, what is still growing, and other ways in.">
+  <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
+    <SiteHeader title="Start here" subtitle="There is no single front door" />
+
+    <p class="font-serif text-xl leading-relaxed mb-16">
+      Lazarus is a garden, not a feed. Some pieces are finished, some are seedlings, and they link to each other.
+      Pick a door.
+    </p>
+
+    {evergreen.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-mono text-xs uppercase tracking-widest text-terracottaDark mb-4">Evergreen</h2>
+        <ul class="space-y-3 font-serif text-lg">
+          {evergreen.map((e) => <li><a href={hrefOf(e)} class="underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4">{e.data.title}</a></li>)}
+        </ul>
+      </section>
+    )}
+
+    <section class="mb-14">
+      <h2 class="font-mono text-xs uppercase tracking-widest text-terracottaDark mb-4">Latest</h2>
+      <ul class="space-y-3 font-serif text-lg">
+        {latest.map((e) => <li><a href={hrefOf(e)} class="underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4">{e.data.title}</a>
+          <span class="font-mono text-xs text-graphiteLight"> {e.data.date}</span></li>)}
+      </ul>
+    </section>
+
+    {growing.length > 0 && (
+      <section class="mb-14">
+        <h2 class="font-mono text-xs uppercase tracking-widest text-terracottaDark mb-4">Still growing</h2>
+        <ul class="space-y-3 font-serif text-lg">
+          {growing.map((e) => <li><a href={hrefOf(e)} class="underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4">{e.data.title}</a>
+            <span class="font-mono text-xs text-graphiteLight"> {e.data.stage}</span></li>)}
+        </ul>
+      </section>
+    )}
+
+    <section>
+      <h2 class="font-mono text-xs uppercase tracking-widest text-terracottaDark mb-4">Other ways in</h2>
+      <ul class="space-y-3 font-serif text-lg">
+        {doors.map(([label, path, blurb]) => <li><a href={`${base}${path}/`} class="underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4">{label}</a> <span class="text-graphiteLight">{blurb}</span></li>)}
+      </ul>
+    </section>
+  </main>
+</Layout>

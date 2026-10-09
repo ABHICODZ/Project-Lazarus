@@ -3,10 +3,10 @@ import { slugify } from '../../utils/date';
 import Layout from '../../layouts/Layout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
 import PostList from '../../components/PostList.astro';
-import { getPosts } from '../../utils/posts';
+import { getEntries } from '../../utils/posts';
 
 export async function getStaticPaths() {
-  const posts = await getPosts();
+  const posts = await getEntries();
   const tags = [...new Set(posts.flatMap((p) => p.data.tags))];
   return tags.map((tag) => ({
     params: { tag: slugify(tag) },

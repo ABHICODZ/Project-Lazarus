@@ -2,7 +2,7 @@ import type { APIRoute, GetStaticPaths } from 'astro';
 import satori from 'satori';
 import sharp from 'sharp';
 import { readFileSync } from 'node:fs';
-import { getPosts } from '../../utils/posts';
+import { getEntries, ogName } from '../../utils/posts';
 
 // Satori accepts TTF, OTF and WOFF (not WOFF2), so use the static fontsource files.
 const font = (pkg: string, file: string) => readFileSync(`node_modules/${pkg}/files/${file}`);
@@ -14,11 +14,11 @@ const INK = '#F4F2EC', PAPER = '#121212', GRAPHITE = '#B0AEA8', ACCENT = '#E06D5
 type Card = { title: string; tag: string; footer: string };
 
 export const getStaticPaths: GetStaticPaths = async () => {
-  const posts = await getPosts();
+  const posts = await getEntries();
   return [
     { params: { slug: 'default' }, props: { card: { title: 'Project Lazarus', tag: 'ARCHIVE', footer: 'Research Notes & Working Papers' } as Card } },
     ...posts.map((p) => ({
-      params: { slug: p.id },
+      params: { slug: ogName(p) },
       props: { card: { title: p.data.title, tag: p.data.tag, footer: `Project Lazarus // ${p.data.date}` } as Card },
     })),
   ];

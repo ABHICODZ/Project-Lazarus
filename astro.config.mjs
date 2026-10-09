@@ -6,15 +6,17 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 import rehypeSlug from 'rehype-slug';
 import rehypeAutolinkHeadings from 'rehype-autolink-headings';
+import remarkWikiLinks from './plugins/wikilinks.mjs';
+import { SITE, BASE } from './site.config.mjs';
 
 export default defineConfig({
   // Override for another host, e.g. SITE_URL=https://example.com SITE_BASE=/ npm run build
-  site: process.env.SITE_URL ?? 'https://abhicodz.github.io',
-  base: process.env.SITE_BASE ?? '/Project-Lazarus',
+  site: SITE,
+  base: BASE || '/',
   integrations: [mdx(), sitemap()],
   vite: { plugins: [tailwindcss()] },
   markdown: {
-    remarkPlugins: [remarkMath],
+    remarkPlugins: [remarkMath, [remarkWikiLinks, { base: BASE }]],
     rehypePlugins: [
       rehypeKatex,
       rehypeSlug,

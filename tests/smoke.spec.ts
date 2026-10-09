@@ -1,6 +1,6 @@
 import { test, expect, type Page } from '@playwright/test';
 
-const pages = ['', 'archive/', 'lab/', 'write/', 'tag/tech/', 'new-age-groceries/'];
+const pages = ['', 'archive/', 'lab/', 'write/', 'tag/tech/', 'new-age-groceries/', 'start/', 'notes/', 'constellation/'];
 
 /** Collect console errors and failed requests while a page loads. */
 function watch(page: Page) {

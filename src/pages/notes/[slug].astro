@@ -1,18 +1,18 @@
 ---
 import { render } from 'astro:content';
-import ArticleLayout from '../layouts/ArticleLayout.astro';
-import { getPosts, getEntries, readingTime, related, backlinks, ogName, type Post, type Entry } from '../utils/posts';
+import ArticleLayout from '../../layouts/ArticleLayout.astro';
+import { getNotes, getEntries, readingTime, related, backlinks, ogName, type Note, type Entry } from '../../utils/posts';
 
 export async function getStaticPaths() {
-  const posts = await getPosts();
+  const notes = await getNotes();
   const all = await getEntries();
-  return posts.map((entry, i) => ({
+  return notes.map((entry, i) => ({
     params: { slug: entry.id },
-    props: { entry, newer: posts[i - 1], older: posts[i + 1], more: related(entry, all), mentions: backlinks(entry, all) },
+    props: { entry, newer: notes[i - 1], older: notes[i + 1], more: related(entry, all), mentions: backlinks(entry, all) },
   }));
 }
 
-interface Props { entry: Post; newer?: Post; older?: Post; more: Entry[]; mentions: Entry[] }
+interface Props { entry: Note; newer?: Note; older?: Note; more: Entry[]; mentions: Entry[] }
 const { entry, newer, older, more, mentions } = Astro.props;
 const { Content, headings } = await render(entry);
 ---

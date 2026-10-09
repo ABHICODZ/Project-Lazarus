@@ -1,18 +1,19 @@
 ---
 import Layout from './Layout.astro';
 import { base, slugify } from '../utils/date';
-import type { Post } from '../utils/posts';
+import { hrefOf, type Entry } from '../utils/posts';
 import Comments from '../components/Comments.astro';
 
 interface Props {
-  slug: string;
-  frontmatter: Post['data'] & { readingTime?: string };
+  ogName: string;
+  frontmatter: Entry['data'] & { readingTime?: string };
   headings?: { depth: number; slug: string; text: string }[];
-  newer?: Post;
-  older?: Post;
-  related?: Post[];
+  newer?: Entry;
+  older?: Entry;
+  related?: Entry[];
+  backlinks?: Entry[];
 }
-const { frontmatter, slug, headings = [], newer, older, related = [] } = Astro.props;
+const { frontmatter, ogName, headings = [], newer, older, related = [], backlinks = [] } = Astro.props;
 const toc = headings
   .filter((h) => h.depth === 2 || h.depth === 3)
   .map((h) => ({ ...h, text: h.text.replace(/^#\s*/, '') }));
@@ -22,7 +23,7 @@ const statusHelp = {
   settled: 'Confident. Would bet on it.',
 };
 ---
-<Layout title={`${frontmatter.title} | Project Lazarus`} description={frontmatter.description} image={`${base}og/${slug}.png`} type="article">
+<Layout title={`${frontmatter.title} | Project Lazarus`} description={frontmatter.description} image={`${base}og/${ogName}.png`} type="article">
   <div id="progress-bar" role="presentation" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
 
   <nav aria-label="Breadcrumb" class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
@@ -83,15 +84,26 @@ const statusHelp = {
 
     <footer class="mt-24 pt-8 border-t border-hairlineDark font-mono text-sm space-y-10">
       <div class="flex justify-between gap-6">
-        {older ? <a href={`${base}${older.id}/`} class="text-graphiteLight hover:text-terracottaDark max-w-[45%]">← {older.data.title}</a> : <span />}
-        {newer ? <a href={`${base}${newer.id}/`} class="text-graphiteLight hover:text-terracottaDark text-right max-w-[45%]">{newer.data.title} →</a> : <span />}
+        {older ? <a href={hrefOf(older)} class="text-graphiteLight hover:text-terracottaDark max-w-[45%]">← {older.data.title}</a> : <span />}
+        {newer ? <a href={hrefOf(newer)} class="text-graphiteLight hover:text-terracottaDark text-right max-w-[45%]">{newer.data.title} →</a> : <span />}
       </div>
+      {backlinks.length > 0 && (
+        <section aria-labelledby="mentions-h">
+          <h2 id="mentions-h" class="text-terracottaDark uppercase tracking-widest text-xs mb-3">Mentioned in</h2>
+          <ul class="space-y-2">
+            {backlinks.map((p) => (
+              <li><a href={hrefOf(p)} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
+                <span class="text-xs text-graphiteLight"> [{p.collection === 'notes' ? 'NOTE' : p.data.tag}]</span></li>
+            ))}
+          </ul>
+        </section>
+      )}
       {related.length > 0 && (
         <section aria-labelledby="related-h">
           <h2 id="related-h" class="text-terracottaDark uppercase tracking-widest text-xs mb-3">Further down the rabbit hole</h2>
           <ul class="space-y-2">
             {related.map((p) => (
-              <li><a href={`${base}${p.id}/`} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
+              <li><a href={hrefOf(p)} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
                 <span class="text-xs text-graphiteLight"> [{p.data.tag}]</span></li>
             ))}
           </ul>
