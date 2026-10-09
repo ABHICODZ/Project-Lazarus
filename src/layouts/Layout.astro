@@ -6,16 +6,21 @@ import '@fontsource/courier-prime/400.css';
 import '@fontsource/courier-prime/400-italic.css';
 import '@fontsource/courier-prime/700.css';
 import '../styles/global.css';
-import 'katex/dist/katex.min.css';
+// Preload the two fonts every page needs so text does not reflow when they arrive.
+import garamondUrl from '@fontsource-variable/eb-garamond/files/eb-garamond-latin-wght-normal.woff2?url';
+import courierUrl from '@fontsource/courier-prime/files/courier-prime-latin-400-normal.woff2?url';
+import katexCss from 'katex/dist/katex.min.css?url';
 
 interface Props {
   title: string;
   description?: string;
   image?: string;
   type?: 'website' | 'article';
+  /** Load KaTeX styles. Only pages with math need them. */
+  math?: boolean;
 }
 const base = import.meta.env.BASE_URL.replace(/\/$/, '');
-const { title, description = 'Research Notes & Working Papers', image = `${base}/og/default.png`, type = 'website' } = Astro.props;
+const { title, description = 'Research Notes & Working Papers', image = `${base}/og/default.png`, type = 'website', math = false } = Astro.props;
 const canonical = new URL(Astro.url.pathname, Astro.site);
 ---
 <!doctype html>
@@ -23,6 +28,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" as="font" type="font/woff2" href={garamondUrl} crossorigin />
+    <link rel="preload" as="font" type="font/woff2" href={courierUrl} crossorigin />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
@@ -51,6 +58,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.documentElement.dataset.theme = t;
       })();
     </script>
+    {math && <link rel="stylesheet" href={katexCss} />}
     <ClientRouter />
   </head>
   <body class="bg-paperDark text-inkLight min-h-screen antialiased">
@@ -58,7 +66,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
     <div
       aria-hidden="true"
       class="fixed inset-0 pointer-events-none bg-cover bg-center bg-fixed z-0"
-      style={`background-image:url(${base}/bg.jpg);opacity:var(--bg-opacity);mix-blend-mode:var(--bg-blend)`}
+      style={`background-image:url(${base}/bg.webp);opacity:var(--bg-opacity);mix-blend-mode:var(--bg-blend)`}
     ></div>
 
     <button id="theme-toggle" type="button" transition:persist aria-label="Toggle light and dark theme"

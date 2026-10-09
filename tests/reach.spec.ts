@@ -25,7 +25,7 @@ test('JSON Feed lists posts with absolute URLs under the base path', async ({ re
 
 test('search finds a post by a word from its body', async ({ page }) => {
   await page.goto('');
-  await page.locator('pagefind-modal-trigger').getByRole('button').click();
+  await page.getByRole('button', { name: 'Search this site' }).click();
   await page.getByRole('searchbox').fill('subscription');
   await expect(page.locator('pagefind-modal')).toContainText('New Age Groceries');
 });

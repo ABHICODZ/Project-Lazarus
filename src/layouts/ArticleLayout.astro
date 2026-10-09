@@ -6,6 +6,7 @@ import Comments from '../components/Comments.astro';
 
 interface Props {
   ogName: string;
+  math?: boolean;
   frontmatter: Entry['data'] & { readingTime?: string };
   headings?: { depth: number; slug: string; text: string }[];
   newer?: Entry;
@@ -13,7 +14,7 @@ interface Props {
   related?: Entry[];
   backlinks?: Entry[];
 }
-const { frontmatter, ogName, headings = [], newer, older, related = [], backlinks = [] } = Astro.props;
+const { frontmatter, ogName, math = false, headings = [], newer, older, related = [], backlinks = [] } = Astro.props;
 const toc = headings
   .filter((h) => h.depth === 2 || h.depth === 3)
   .map((h) => ({ ...h, text: h.text.replace(/^#\s*/, '') }));
@@ -23,7 +24,7 @@ const statusHelp = {
   settled: 'Confident. Would bet on it.',
 };
 ---
-<Layout title={`${frontmatter.title} | Project Lazarus`} description={frontmatter.description} image={`${base}og/${ogName}.png`} type="article">
+<Layout title={`${frontmatter.title} | Project Lazarus`} description={frontmatter.description} image={`${base}og/${ogName}.png`} type="article" math={math}>
   <div id="progress-bar" role="presentation" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
 
   <nav aria-label="Breadcrumb" class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
@@ -58,7 +59,7 @@ const statusHelp = {
           <time class="font-mono text-graphiteLight text-sm">{frontmatter.date}</time>
         </div>
       </div>
-      <h1 class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">{frontmatter.title}</h1>
+      <h1 transition:name={`title-${ogName}`} class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">{frontmatter.title}</h1>
       {(frontmatter.status || frontmatter.stage || frontmatter.updated) && (
         <ul class="mt-4 font-mono text-xs text-graphiteLight space-y-1">
           {frontmatter.status && (

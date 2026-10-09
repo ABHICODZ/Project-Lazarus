@@ -199,24 +199,34 @@ import PredictReveal from '../components/explorables/PredictReveal.astro';
           const { lines } = layoutWithLines(prepared, maxWidth, lineHeight);
           
           container.innerHTML = '';
-          
+          // Announce the paragraph once instead of letter by letter.
+          container.setAttribute('role', 'img');
+          container.setAttribute('aria-label', rawText);
+          const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+          const vars = getComputedStyle(document.documentElement);
+          const accentColor = `rgb(${vars.getPropertyValue('--accent').trim().split(' ').join(', ')})`;
+          const graphiteColor = `rgb(${vars.getPropertyValue('--graphite').trim().split(' ').join(', ')})`;
+
           // 2. Build DOM layout absolutely, split into characters
           lines.forEach((line, lineIdx) => {
             const lineEl = document.createElement('div');
             lineEl.className = 'absolute left-6 whitespace-pre font-mono text-sm leading-6';
             lineEl.style.top = `${24 + (lineIdx * lineHeight)}px`;
+            lineEl.setAttribute('aria-hidden', 'true');
             
             line.text.split('').forEach((char) => {
               const span = document.createElement('span');
               span.innerHTML = char === ' ' ? '&nbsp;' : char;
-              span.className = 'k-char inline-block opacity-0';
+              span.className = calm ? 'k-char inline-block' : 'k-char inline-block opacity-0';
               
+              if (calm) { span.style.color = graphiteColor; lineEl.appendChild(span); return; }
+
               // Pre-scatter the characters randomly across the box
               const rx = (Math.random() - 0.5) * 800;
               const ry = (Math.random() - 0.5) * 800;
               const rz = (Math.random() - 0.5) * 720;
               span.style.transform = `translate(${rx}px, ${ry}px) rotate(${rz}deg) scale(4)`;
-              span.style.color = '#C85A48'; // Start Terracotta
+              span.style.color = accentColor; // Start in the accent colour
               
               lineEl.appendChild(span);
             });
@@ -224,7 +234,8 @@ import PredictReveal from '../components/explorables/PredictReveal.astro';
             container.appendChild(lineEl);
           });
           
-          // 3. Spectacular Anime.js swarm animation
+          // 3. Spectacular Anime.js swarm animation (skipped entirely for reduced motion)
+          if (calm) return;
           anime.timeline()
             .add({
               targets: '.k-char',
@@ -233,7 +244,7 @@ import PredictReveal from '../components/explorables/PredictReveal.astro';
               translateY: 0,
               rotate: 0,
               scale: 1,
-              color: '#8a8a8a', // Settle into graphite
+              color: graphiteColor, // Settle into graphite
               delay: anime.stagger(5, {start: 100, from: 'center'}), // Ripple from center
               easing: 'easeOutElastic(1, .6)',
               duration: 1800

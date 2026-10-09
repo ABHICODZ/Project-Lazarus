@@ -97,3 +97,26 @@
 
 /* Hover images: pointer devices only, and never for reduced-motion */
 @media (hover: none) { .hover-reveal .img-popup { display: none; } }
+
+/* Tables and figures line up better with tabular numerals */
+.prose-lazarus table, .explorable { font-variant-numeric: tabular-nums; }
+
+/* ---- Print: a post should print like a paper ---- */
+@media print {
+  :root, :root[data-theme='dark'], :root[data-theme='light'] {
+    --paper: 255 255 255; --ink: 0 0 0; --graphite: 60 60 60; --accent: 140 40 25;
+    --hairline: 180 180 180; --control: 120 120 120; --well: 255 255 255;
+  }
+  body { background: #fff !important; }
+  body > div[aria-hidden='true'], #theme-toggle, .skip-link, #progress-bar, #toc, nav[aria-label='Breadcrumb'],
+  .copy-btn, #cite-btn, pagefind-modal-trigger, pagefind-modal, [data-explorable] button, [data-predict] button,
+  #giscus-host, footer .flex.justify-between { display: none !important; }
+  .prose-lazarus a[href^='http']::after { content: ' (' attr(href) ')'; font-size: .8em; word-break: break-all; }
+  .prose-lazarus pre { white-space: pre-wrap; border-color: #999; }
+  .sidenote-body {
+    position: static !important; opacity: 1 !important; visibility: visible !important; display: block;
+    width: auto !important; margin: .5rem 0 !important; float: none !important; transform: none !important;
+    border: 0 !important; border-left: 2px solid #999 !important; padding: 0 0 0 .75rem !important; font-size: .85rem;
+  }
+  h1, h2, h3, figure { break-after: avoid; break-inside: avoid; }
+}

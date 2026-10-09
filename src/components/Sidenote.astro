@@ -4,17 +4,17 @@ interface Props {
 }
 const { num } = Astro.props;
 ---
-<span class="relative group inline cursor-help">
+<span class="relative group inline cursor-help" tabindex="0" role="note">
   <sup class="text-terracottaDark font-mono ml-0.5 font-bold">[{num}]</sup>
   
-  <span class="
+  <span class="sidenote-body
     absolute z-50 
     w-64 p-3 
     bg-paperDark border border-hairlineDark shadow-2xl
     text-sm font-mono text-graphiteLight leading-relaxed
     
     /* Mobile: Tooltip (appears on hover) */
-    opacity-0 invisible group-hover:opacity-100 group-hover:visible 
+    opacity-0 invisible group-hover:opacity-100 group-hover:visible group-focus-within:opacity-100 group-focus-within:visible 
     bottom-full left-1/2 -translate-x-1/2 mb-2
     
     /* Desktop (Wide): Permanent Margin Note utilizing float and clear */

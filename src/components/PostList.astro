@@ -1,6 +1,6 @@
 ---
 import { base, slugify } from '../utils/date';
-import { hrefOf, type Entry } from '../utils/posts';
+import { hrefOf, ogName, type Entry } from '../utils/posts';
 interface Props { posts: Entry[] }
 const { posts } = Astro.props;
 ---
@@ -12,7 +12,7 @@ const { posts } = Astro.props;
         <a href={`${base}tag/${slugify(post.data.tag)}/`} class="font-mono text-graphiteLight hover:text-terracottaDark text-xs">[{post.data.tag}]</a>
       </div>
       <h2 class="text-2xl font-serif text-inkLight mb-3 leading-snug">
-        <a href={hrefOf(post)} class="hover:text-terracottaDark underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4 decoration-1 transition-colors">
+        <a href={hrefOf(post)} transition:name={`title-${ogName(post)}`} class="hover:text-terracottaDark underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4 decoration-1 transition-colors">
           {post.data.title}
         </a>
       </h2>
