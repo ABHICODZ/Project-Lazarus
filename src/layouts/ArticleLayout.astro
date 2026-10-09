@@ -1,24 +1,28 @@
 ---
 import Layout from './Layout.astro';
 const { frontmatter } = Astro.props;
+import { base } from '../utils/date';
 ---
 <Layout title={frontmatter.title} description={frontmatter.description}>
   <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
   <script>
     document.addEventListener('astro:page-load', () => {
       const progressBar = document.getElementById('progress-bar');
-      if(!progressBar) return;
-      window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      if (!progressBar) return;
+      const update = () => {
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
+        const scrolled = height > 0 ? (document.documentElement.scrollTop / height) * 100 : 0;
         progressBar.style.width = scrolled + '%';
-      });
+      };
+      window.addEventListener('scroll', update, { passive: true });
+      // The bar is replaced on each view transition; drop the old listener.
+      document.addEventListener('astro:before-swap', () => window.removeEventListener('scroll', update), { once: true });
+      update();
     });
   </script>
 
   <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
-    <a href="/Project-Lazarus/" class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
+    <a href={base} class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
       ← Project Lazarus // Index
     </a>
   </nav>

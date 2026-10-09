@@ -1,9 +1,10 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import { base } from '../utils/date';
 ---
 <Layout title="The Lab | Project Lazarus">
   <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
-    <a href="/Project-Lazarus/" class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
+    <a href={base} class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
       ← Project Lazarus // Index
     </a>
   </nav>
