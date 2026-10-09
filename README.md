@@ -16,6 +16,12 @@ Designed with an "Archival Dark Mode" aesthetic, the architecture completely sid
 - **Serverless Editor (`/write`):** A custom built-in interface that allows you to draft essays in the browser, auto-generating markdown frontmatter, and seamlessly piping the payload directly into the GitHub Web Editor for instant publishing.
 - **Astro ViewTransitions:** Zero-reload SPA-like navigation across the entire site.
 
+- **Typeset for reading:** KaTeX math (`$E=mc^2$`, `$$ ... $$`), Shiki syntax highlighting with light/dark themes, self-hosted fonts, auto-linked headings, a scroll-spy table of contents, and a drop cap.
+- **Light & dark themes:** follows the OS by default, with a persistent toggle and no flash on load.
+- **Discovery:** tag pages, a year-by-year archive, related posts, prev/next navigation, a sitemap and RSS.
+- **Components:** `<Sidenote>`, `<Figure>`, `<Callout kind="tldr|note|warning">`.
+- **Epistemic status:** add `status: speculative | working | settled` to a post's frontmatter.
+
 ## ✦ Tech Stack
 
 - **Framework:** [Astro](https://astro.build/)
@@ -53,7 +59,7 @@ To run this project locally on your machine and experiment with the source code:
 There are two ways to publish a new transmission:
 
 1. **Via the Web:** Navigate to `/write` on the live site to use the bespoke editor. It will compile your markdown and open a GitHub PR/Commit screen automatically.
-2. **Via Local Editor:** Create a new `.mdx` file inside `src/content/blog/`. Add the required frontmatter (`title`, `date`, `tag`, `description`) and push your changes to the `main` branch. GitHub Actions will automatically rebuild and deploy the site in under 60 seconds.
+2. **Via Local Editor:** Create a new `.mdx` file inside `src/content/blog/`. Add the required frontmatter (`title`, `date`, `tag`, `description`; optional `topics`, `status`, `draft`) and push your changes to the `main` branch. GitHub Actions will automatically rebuild and deploy the site in under 60 seconds.
 
 ## ✦ License
 

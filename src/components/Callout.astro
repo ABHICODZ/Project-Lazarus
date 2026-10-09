@@ -1,0 +1,9 @@
+---
+interface Props { kind?: 'note' | 'warning' | 'tldr'; title?: string }
+const { kind = 'note', title } = Astro.props;
+const label = title ?? { note: 'Note', warning: 'Caution', tldr: 'TL;DR' }[kind];
+---
+<aside class="not-prose border border-hairlineDark border-l-2 border-l-terracottaDark bg-[rgb(var(--well))] p-4 my-8">
+  <p class="font-mono text-xs uppercase tracking-widest text-terracottaDark mb-2">{label}</p>
+  <div class="text-base leading-relaxed [&>p+p]:mt-3"><slot /></div>
+</aside>

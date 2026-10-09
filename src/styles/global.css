@@ -1,0 +1,87 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Theme tokens (RGB triplets so Tailwind opacity modifiers work) ---- */
+:root {
+  --paper: 18 18 18;
+  --ink: 244 242 236;
+  --graphite: 176 174 168;
+  --accent: 224 109 92;
+  --hairline: 74 74 74;
+  --well: 10 10 10;
+  --bg-opacity: 0.25;
+  --bg-blend: screen;
+  color-scheme: dark;
+}
+:root[data-theme='light'] {
+  --paper: 245 241 230;
+  --ink: 28 26 23;
+  --graphite: 98 94 86;
+  --accent: 168 62 44;
+  --hairline: 201 194 177;
+  --well: 236 231 216;
+  --bg-opacity: 0.08;
+  --bg-blend: multiply;
+  color-scheme: light;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; scroll-padding-top: 2rem; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  }
+  body { font-family: theme('fontFamily.serif'); font-kerning: normal; font-variant-ligatures: common-ligatures; }
+  :focus-visible { outline: 2px solid rgb(var(--accent)); outline-offset: 3px; }
+  ::selection { background: rgb(var(--accent) / 0.35); }
+  h1, h2, h3 { text-wrap: balance; }
+}
+
+.skip-link {
+  position: absolute; left: 1rem; top: -4rem; z-index: 100;
+  padding: .5rem 1rem; background: rgb(var(--paper)); color: rgb(var(--accent));
+  border: 1px solid rgb(var(--accent)); font-family: theme('fontFamily.mono');
+}
+.skip-link:focus { top: 1rem; }
+
+/* ---- Article prose ---- */
+.prose-lazarus { text-wrap: pretty; hanging-punctuation: first; }
+.prose-lazarus > * + * { margin-top: 1.5rem; }
+.prose-lazarus h2, .prose-lazarus h3 { font-family: theme('fontFamily.serif'); line-height: 1.2; margin-top: 3rem; position: relative; }
+.prose-lazarus h2 { font-size: 1.875rem; }
+.prose-lazarus h3 { font-size: 1.4rem; font-style: italic; }
+.prose-lazarus h2 .anchor, .prose-lazarus h3 .anchor {
+  position: absolute; right: 100%; padding-right: .5rem; opacity: 0; color: rgb(var(--accent));
+  font-family: theme('fontFamily.mono'); text-decoration: none; font-size: .9em;
+}
+.prose-lazarus h2:hover .anchor, .prose-lazarus h3:hover .anchor, .prose-lazarus .anchor:focus { opacity: 1; }
+.prose-lazarus a { text-decoration: underline; text-decoration-color: rgb(var(--accent)); text-underline-offset: 4px; text-decoration-thickness: 1px; }
+.prose-lazarus a:hover { color: rgb(var(--accent)); }
+.prose-lazarus ul { list-style: square; padding-left: 1.5rem; }
+.prose-lazarus ol { list-style: decimal; padding-left: 1.5rem; }
+.prose-lazarus li::marker { color: rgb(var(--accent)); }
+.prose-lazarus li + li { margin-top: .4rem; }
+.prose-lazarus blockquote { border-left: 2px solid rgb(var(--accent)); padding-left: 1.25rem; font-style: italic; color: rgb(var(--graphite)); }
+.prose-lazarus hr { border: 0; text-align: center; color: rgb(var(--graphite)); }
+.prose-lazarus hr::before { content: '∗ ∗ ∗'; letter-spacing: .5em; }
+.prose-lazarus :not(pre) > code { font-family: theme('fontFamily.mono'); font-size: .85em; padding: .1em .35em; background: rgb(var(--well)); border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus pre { font-family: theme('fontFamily.mono'); font-size: .85rem; line-height: 1.6; padding: 1.25rem; overflow-x: auto; border: 1px solid rgb(var(--hairline)); }
+.prose-lazarus table { width: 100%; font-family: theme('fontFamily.mono'); font-size: .85rem; border-collapse: collapse; }
+.prose-lazarus th, .prose-lazarus td { border-bottom: 1px solid rgb(var(--hairline)); padding: .5rem .75rem; text-align: left; }
+.prose-lazarus th { color: rgb(var(--accent)); font-weight: 700; }
+.prose-lazarus img { max-width: 100%; height: auto; }
+.prose-lazarus > p:first-of-type::first-letter { font-size: 3.4em; float: left; line-height: .85; padding: .08em .1em 0 0; color: rgb(var(--accent)); }
+
+/* Shiki dual theme: switch on our own toggle, not just the OS setting */
+.astro-code, .astro-code span { color: var(--shiki-dark); background-color: var(--shiki-dark-bg); }
+:root[data-theme='light'] .astro-code, :root[data-theme='light'] .astro-code span {
+  color: var(--shiki-light); background-color: var(--shiki-light-bg);
+}
+
+/* KaTeX */
+.katex { font-size: 1.05em; }
+.katex-display { overflow-x: auto; overflow-y: hidden; padding: .5rem 0; }
+
+/* Hover images: pointer devices only, and never for reduced-motion */
+@media (hover: none) { .hover-reveal .img-popup { display: none; } }

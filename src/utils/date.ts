@@ -6,3 +6,6 @@ export function parseDate(value: string): number {
 
 /** Site base path with exactly one trailing slash, e.g. `/Project-Lazarus/`. */
 export const base = import.meta.env.BASE_URL.replace(/\/?$/, '/');
+
+/** URL-safe slug for tag pages: "Statistical Mechanics" -> "statistical-mechanics". */
+export const slugify = (s: string) => s.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');

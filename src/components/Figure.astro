@@ -1,0 +1,19 @@
+---
+interface Props {
+  src: string;
+  alt: string;
+  caption?: string;
+  num?: number | string;
+}
+const { src, alt, caption, num } = Astro.props;
+---
+<figure class="my-10 -mx-4 md:-mx-12">
+  <a href={src} target="_blank" rel="noopener" class="block border border-hairlineDark bg-[rgb(var(--well))] p-2 hover:border-terracottaDark transition-colors">
+    <img src={src} alt={alt} loading="lazy" decoding="async" class="mx-auto max-h-[28rem] w-auto" />
+  </a>
+  {caption && (
+    <figcaption class="mt-2 px-1 font-mono text-xs text-graphiteLight leading-relaxed">
+      {num && <span class="text-terracottaDark">Fig. {num}. </span>}{caption}
+    </figcaption>
+  )}
+</figure>

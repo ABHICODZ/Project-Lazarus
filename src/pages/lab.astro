@@ -25,7 +25,7 @@ import { base } from '../utils/date';
         </h2>
         <p class="font-serif text-graphiteLight mb-6">A lightweight, interactive particle field simulation running on an HTML5 canvas. Hover to exert a repulsive force on the lattice.</p>
         
-        <div class="relative w-full h-[400px] border border-hairlineDark bg-[#0a0a0a] overflow-hidden rounded-sm group-hover:border-terracottaDark/30 transition-colors">
+        <div class="relative w-full h-[400px] border border-hairlineDark bg-[rgb(var(--well))] overflow-hidden rounded-sm group-hover:border-terracottaDark/30 transition-colors">
           <canvas id="particle-canvas" class="absolute inset-0 w-full h-full"></canvas>
         </div>
       </section>
@@ -37,7 +37,7 @@ import { base } from '../utils/date';
         </h2>
         <p class="font-serif text-graphiteLight mb-6">High-performance text layout and staggered animation. Driven by <a href="https://github.com/chenglou/pretext" class="underline hover:text-terracottaDark" target="_blank">pretext</a> to measure paragraphs without DOM reflows, and <a href="https://animejs.com/" class="underline hover:text-terracottaDark" target="_blank">anime.js</a> for the choreography.</p>
         
-        <div class="relative w-full h-[400px] border border-hairlineDark bg-[#0a0a0a] overflow-hidden rounded-sm group-hover:border-terracottaDark/30 transition-colors p-6">
+        <div class="relative w-full h-[400px] border border-hairlineDark bg-[rgb(var(--well))] overflow-hidden rounded-sm group-hover:border-terracottaDark/30 transition-colors p-6">
           <button id="trigger-animation" class="absolute top-4 right-4 z-10 px-3 py-1 bg-paperDark border border-terracottaDark text-xs font-mono text-terracottaDark hover:bg-terracottaDark hover:text-inkLight transition-colors cursor-pointer">RUN / RETRY</button>
           
           <div id="text-container" class="font-mono text-sm leading-6 text-graphiteLight w-full h-full relative" data-raw="We used to dream of artificial intelligence taking over the mundane tasks, leaving us free to pursue art and leisure. Instead, the models got so good at mimicking human creativity that we found ourselves doing the data entry and RLHF just to feed them. But there is a silver lining. As the cost of intelligence approaches zero, the friction of manifesting ideas into reality approaches zero. The only remaining bottleneck is human imagination. This text is dynamically laid out calculating exact line breaks using canvas off-thread, completely side-stepping DOM reflow, and then animated absolutely using anime.js.">
@@ -84,6 +84,16 @@ import { base } from '../utils/date';
           }
         }
         
+        const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+        const accentRgb = () => getComputedStyle(document.documentElement).getPropertyValue('--accent').trim().split(' ').join(', ');
+        let accent = `rgb(${accentRgb()})`;
+        let accentFaint = `rgba(${accentRgb()}, 0.15)`;
+        let visible = true;
+        new IntersectionObserver(([e]) => {
+          visible = e.isIntersecting;
+          if (visible && !running) { running = true; requestAnimationFrame(animateLattice); }
+        }).observe(canvas);
+        let running = false;
         let mouse = { x: -1000, y: -1000 };
         canvas.addEventListener('mousemove', (e) => {
           const rect = canvas.getBoundingClientRect();
@@ -96,9 +106,11 @@ import { base } from '../utils/date';
         });
         
         function animateLattice() {
-          if(!ctx) return;
+          if (!ctx || !canvas.isConnected || !visible) { running = false; return; }
+          accent = `rgb(${accentRgb()})`;
+          accentFaint = `rgba(${accentRgb()}, 0.15)`;
           ctx.clearRect(0, 0, width, height);
-          ctx.fillStyle = '#C85A48';
+          ctx.fillStyle = accent;
           
           for(let p of particles) {
             const dx = mouse.x - p.x;
@@ -121,14 +133,16 @@ import { base } from '../utils/date';
             ctx.arc(p.x, p.y, 1.5, 0, Math.PI * 2);
             ctx.fill();
             
-            ctx.strokeStyle = 'rgba(200, 90, 72, 0.15)';
+            ctx.strokeStyle = accentFaint;
             ctx.beginPath();
             ctx.moveTo(p.originX, p.originY);
             ctx.lineTo(p.x, p.y);
             ctx.stroke();
           }
+          if (reduceMotion) { running = false; return; }
           requestAnimationFrame(animateLattice);
         }
+        running = true;
         animateLattice();
         window.addEventListener('resize', () => {
           if(canvas.offsetWidth !== width) {

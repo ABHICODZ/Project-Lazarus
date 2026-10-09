@@ -1,105 +1,164 @@
 ---
 import Layout from './Layout.astro';
-const { frontmatter } = Astro.props;
-import { base } from '../utils/date';
----
-<Layout title={frontmatter.title} description={frontmatter.description}>
-  <div id="progress-bar" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
-  <script>
-    document.addEventListener('astro:page-load', () => {
-      const progressBar = document.getElementById('progress-bar');
-      if (!progressBar) return;
-      const update = () => {
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = height > 0 ? (document.documentElement.scrollTop / height) * 100 : 0;
-        progressBar.style.width = scrolled + '%';
-      };
-      window.addEventListener('scroll', update, { passive: true });
-      // The bar is replaced on each view transition; drop the old listener.
-      document.addEventListener('astro:before-swap', () => window.removeEventListener('scroll', update), { once: true });
-      update();
-    });
-  </script>
+import { base, slugify } from '../utils/date';
+import type { Post } from '../utils/posts';
 
-  <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
+interface Props {
+  frontmatter: Post['data'] & { readingTime?: string };
+  headings?: { depth: number; slug: string; text: string }[];
+  newer?: Post;
+  older?: Post;
+  related?: Post[];
+}
+const { frontmatter, headings = [], newer, older, related = [] } = Astro.props;
+const toc = headings
+  .filter((h) => h.depth === 2 || h.depth === 3)
+  .map((h) => ({ ...h, text: h.text.replace(/^#\s*/, '') }));
+const statusHelp = {
+  speculative: 'Thinking out loud. Expect holes.',
+  working: 'Current best understanding. Subject to revision.',
+  settled: 'Confident. Would bet on it.',
+};
+---
+<Layout title={`${frontmatter.title} | Project Lazarus`} description={frontmatter.description} type="article">
+  <div id="progress-bar" role="presentation" class="fixed top-0 left-0 h-1 bg-terracottaDark z-50 transition-all duration-150" style="width: 0%"></div>
+
+  <nav aria-label="Breadcrumb" class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
     <a href={base} class="font-mono text-sm text-graphiteLight hover:text-terracottaDark transition-colors italic">
       ← Project Lazarus // Index
     </a>
   </nav>
-  
-  <article class="max-w-[68ch] mx-auto px-4 pb-24 relative">
+
+  <article class="max-w-[68ch] mx-auto px-4 pb-16 relative">
+    {toc.length > 2 && (
+      <nav id="toc" aria-label="Table of contents"
+        class="hidden 2xl:block absolute right-full mr-12 top-0 w-56 h-full">
+        <div class="sticky top-8 font-mono text-xs leading-relaxed">
+          <p class="text-terracottaDark uppercase tracking-widest mb-3">Contents</p>
+          <ol class="space-y-2 border-l border-hairlineDark">
+            {toc.map((h) => (
+              <li class={h.depth === 3 ? 'pl-6' : 'pl-3'}>
+                <a href={`#${h.slug}`} data-toc-link={h.slug}
+                  class="block text-graphiteLight hover:text-terracottaDark aria-[current=true]:text-terracottaDark transition-colors">{h.text}</a>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </nav>
+    )}
+
     <header class="mb-16">
-      <div class="flex items-baseline justify-between mb-4">
-        <span class="font-mono text-graphiteLight text-xs tracking-widest uppercase">[{frontmatter.tag}]</span>
+      <div class="flex items-baseline justify-between mb-4 flex-wrap gap-2">
+        <a href={`${base}tag/${slugify(frontmatter.tag)}/`} class="font-mono text-graphiteLight hover:text-terracottaDark text-xs tracking-widest uppercase">[{frontmatter.tag}]</a>
         <div class="flex gap-4">
           {frontmatter.readingTime && <span class="font-mono text-graphiteLight text-sm italic">{frontmatter.readingTime}</span>}
-          <span class="font-mono text-graphiteLight text-sm">{frontmatter.date}</span>
+          <time class="font-mono text-graphiteLight text-sm">{frontmatter.date}</time>
         </div>
       </div>
-      <h1 class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">
-        {frontmatter.title}
-      </h1>
+      <h1 class="text-4xl md:text-5xl font-serif text-inkLight leading-tight">{frontmatter.title}</h1>
+      {frontmatter.status && (
+        <p class="mt-4 font-mono text-xs text-graphiteLight">
+          <span class="uppercase tracking-widest text-terracottaDark">Epistemic status: {frontmatter.status}</span>
+          — {statusHelp[frontmatter.status]}
+        </p>
+      )}
     </header>
-    
-    <div class="font-serif text-lg leading-relaxed text-inkLight space-y-6">
+
+    <div class="prose-lazarus font-serif text-lg leading-relaxed text-inkLight">
       <slot />
     </div>
+
+    <footer class="mt-24 pt-8 border-t border-hairlineDark font-mono text-sm space-y-10">
+      <div class="flex justify-between gap-6">
+        {older ? <a href={`${base}${older.slug}/`} class="text-graphiteLight hover:text-terracottaDark max-w-[45%]">← {older.data.title}</a> : <span />}
+        {newer ? <a href={`${base}${newer.slug}/`} class="text-graphiteLight hover:text-terracottaDark text-right max-w-[45%]">{newer.data.title} →</a> : <span />}
+      </div>
+      {related.length > 0 && (
+        <section aria-labelledby="related-h">
+          <h2 id="related-h" class="text-terracottaDark uppercase tracking-widest text-xs mb-3">Further down the rabbit hole</h2>
+          <ul class="space-y-2">
+            {related.map((p) => (
+              <li><a href={`${base}${p.slug}/`} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
+                <span class="text-xs text-graphiteLight/60"> [{p.data.tag}]</span></li>
+            ))}
+          </ul>
+        </section>
+      )}
+      <button id="cite-btn" type="button" data-cite={`${frontmatter.title}. Project Lazarus, ${frontmatter.date}.`}
+        class="text-xs border border-hairlineDark px-3 py-2 text-graphiteLight hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer">CITE THIS POST</button>
+    </footer>
   </article>
 </Layout>
 
 <script>
+  let cleanup: (() => void) | undefined;
+
   document.addEventListener('astro:page-load', () => {
-    const blocks = document.querySelectorAll('pre');
-    blocks.forEach((block) => {
-      if (block.querySelector('.copy-btn')) return; // Avoid duplicates on view transition
-      
-      const button = document.createElement('button');
-      button.className = "copy-btn absolute top-2 right-2 text-xs font-mono text-graphiteLight bg-paperDark border border-hairlineDark px-2 py-1 hover:text-inkLight hover:border-terracottaDark transition-colors";
-      button.innerText = "COPY";
-      
-      block.style.position = "relative";
-      block.appendChild(button);
-      
-      button.addEventListener('click', async () => {
-        // Find code content, excluding the button's own text
-        const code = block.querySelector('code')?.innerText || block.innerText.replace('COPY', '').replace('COPIED', '');
+    cleanup?.();
+    const fns: (() => void)[] = [];
+
+    // --- Reading progress ---
+    const bar = document.getElementById('progress-bar');
+    if (bar) {
+      const update = () => {
+        const h = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        bar.style.width = (h > 0 ? (document.documentElement.scrollTop / h) * 100 : 0) + '%';
+      };
+      window.addEventListener('scroll', update, { passive: true });
+      fns.push(() => window.removeEventListener('scroll', update));
+      update();
+    }
+
+    // --- Scroll-spy for the table of contents ---
+    const links = new Map<string, HTMLElement>();
+    document.querySelectorAll<HTMLElement>('[data-toc-link]').forEach((a) => links.set(a.dataset.tocLink!, a));
+    if (links.size) {
+      const io = new IntersectionObserver((entries) => {
+        for (const e of entries) {
+          if (!e.isIntersecting) continue;
+          links.forEach((a) => a.removeAttribute('aria-current'));
+          links.get(e.target.id)?.setAttribute('aria-current', 'true');
+        }
+      }, { rootMargin: '0px 0px -75% 0px' });
+      links.forEach((_, id) => { const el = document.getElementById(id); if (el) io.observe(el); });
+      fns.push(() => io.disconnect());
+    }
+
+    // --- Copy buttons on code blocks ---
+    document.querySelectorAll('pre').forEach((block) => {
+      if (block.querySelector('.copy-btn')) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'copy-btn absolute top-2 right-2 text-xs font-mono text-graphiteLight bg-paperDark border border-hairlineDark px-2 py-1 hover:text-inkLight hover:border-terracottaDark transition-colors';
+      btn.textContent = 'COPY';
+      block.style.position = 'relative';
+      block.appendChild(btn);
+      btn.addEventListener('click', async () => {
+        const code = block.querySelector('code')?.textContent ?? '';
         await navigator.clipboard.writeText(code.trim());
-        
-        button.innerText = "COPIED";
-        button.classList.add("text-terracottaDark", "border-terracottaDark");
-        
-        setTimeout(() => {
-          button.innerText = "COPY";
-          button.classList.remove("text-terracottaDark", "border-terracottaDark");
-        }, 2000);
+        btn.textContent = 'COPIED';
+        setTimeout(() => (btn.textContent = 'COPY'), 2000);
       });
     });
+
+    // --- Cite this post ---
+    const cite = document.getElementById('cite-btn');
+    cite?.addEventListener('click', async () => {
+      await navigator.clipboard.writeText(`${cite.dataset.cite} ${location.href}`);
+      cite.textContent = 'COPIED';
+      setTimeout(() => (cite.textContent = 'CITE THIS POST'), 2000);
+    });
+
+    cleanup = () => fns.forEach((f) => f());
   });
 </script>
 
 <style is:global>
-  .hover-reveal {
-    position: relative;
-    text-decoration: underline;
-    text-decoration-color: #C85A48;
-    text-underline-offset: 4px;
-    cursor: crosshair;
-  }
+  .hover-reveal { position: relative; text-decoration: underline; text-decoration-color: rgb(var(--accent)); text-underline-offset: 4px; cursor: crosshair; }
   .hover-reveal .img-popup {
-    position: absolute;
-    top: -120px;
-    left: 50%;
-    transform: translateX(-50%);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    mix-blend-mode: screen;
-    z-index: -1;
-    width: 250px;
-    filter: grayscale(100%) opacity(15%);
+    position: absolute; top: -120px; left: 50%; transform: translateX(-50%);
+    opacity: 0; pointer-events: none; transition: opacity .4s ease, transform .4s ease;
+    mix-blend-mode: screen; z-index: -1; width: 250px; filter: grayscale(100%) opacity(15%);
   }
-  .hover-reveal:hover .img-popup {
-    opacity: 1;
-    transform: translateX(-50%) translateY(-10px);
-  }
+  .hover-reveal:hover .img-popup, .hover-reveal:focus-within .img-popup { opacity: 1; transform: translateX(-50%) translateY(-10px); }
 </style>

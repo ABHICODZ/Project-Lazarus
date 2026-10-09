@@ -1,0 +1,23 @@
+---
+import { slugify } from '../../utils/date';
+import Layout from '../../layouts/Layout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import PostList from '../../components/PostList.astro';
+import { getPosts } from '../../utils/posts';
+
+export async function getStaticPaths() {
+  const posts = await getPosts();
+  const tags = [...new Set(posts.flatMap((p) => p.data.tags))];
+  return tags.map((tag) => ({
+    params: { tag: slugify(tag) },
+    props: { tag, posts: posts.filter((p) => p.data.tags.includes(tag)) },
+  }));
+}
+const { tag, posts } = Astro.props;
+---
+<Layout title={`[${tag}] | Project Lazarus`} description={`Posts tagged ${tag}`}>
+  <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
+    <SiteHeader title={`[${tag}]`} subtitle={`${posts.length} transmission${posts.length === 1 ? '' : 's'}`} />
+    <PostList posts={posts} />
+  </main>
+</Layout>

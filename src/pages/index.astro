@@ -1,42 +1,14 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import { parseDate, base } from '../utils/date';
-import { getCollection, type CollectionEntry } from 'astro:content';
+import SiteHeader from '../components/SiteHeader.astro';
+import PostList from '../components/PostList.astro';
+import { getPosts } from '../utils/posts';
 
-const allPosts = await getCollection('blog', ({ data }) => !data.draft);
-allPosts.sort((a: CollectionEntry<'blog'>, b: CollectionEntry<'blog'>) => parseDate(b.data.date) - parseDate(a.data.date));
+const posts = await getPosts();
 ---
 <Layout title="Project Lazarus | Archival Research Notes">
   <main class="max-w-[68ch] mx-auto px-4 py-24 relative">
-    <header class="mb-24 text-center">
-      <h1 class="text-4xl font-serif text-inkLight tracking-tight">Project Lazarus</h1>
-      <p class="font-mono text-graphiteLight text-sm mt-4 tracking-widest uppercase">Research Notes & Working Papers // The Archival Rabbit Hole</p>
-      <div class="mt-8 flex justify-center gap-6 font-mono text-sm">
-        <a href={`${base}lab`} class="text-graphiteLight hover:text-terracottaDark transition-colors">[The Lab]</a>
-        <a href={`${base}write`} class="text-graphiteLight hover:text-terracottaDark transition-colors">[Write]</a>
-        <a href={`${base}rss.xml`} class="text-graphiteLight hover:text-terracottaDark transition-colors" target="_blank">[RSS]</a>
-      </div>
-    </header>
-
-    <div class="space-y-16">
-      {allPosts.map((post: CollectionEntry<'blog'>) => (
-        <article class="group relative">
-          <div class="flex items-baseline justify-between border-b border-hairlineDark pb-2 mb-4">
-            <time class="font-mono text-graphiteLight text-sm">{post.data.date}</time>
-            <span class="font-mono text-graphiteLight text-xs">[{post.data.tag}]</span>
-          </div>
-          <h2 class="text-2xl font-serif text-inkLight mb-3 leading-snug">
-            <a href={`${base}${post.slug}/`} class="hover:text-terracottaDark underline decoration-hairlineDark hover:decoration-terracottaDark underline-offset-4 decoration-1 transition-colors">
-              {post.data.title}
-            </a>
-          </h2>
-          {post.data.description && (
-            <p class="font-serif text-graphiteLight text-lg leading-relaxed mb-4">
-              {post.data.description}
-            </p>
-          )}
-        </article>
-      ))}
-    </div>
+    <SiteHeader />
+    <PostList posts={posts} />
   </main>
 </Layout>

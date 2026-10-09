@@ -1,15 +1,15 @@
 import rss from '@astrojs/rss';
-import { getCollection } from 'astro:content';
 import { parseDate, base } from '../utils/date';
+import { getPosts } from '../utils/posts';
 
 export async function GET(context) {
-  const blog = await getCollection('blog', ({ data }) => !data.draft);
-  
+  const blog = await getPosts();
+
   return rss({
     title: 'Project Lazarus',
     description: 'Research Notes & Working Papers // The Archival Rabbit Hole',
     site: context.site,
-    items: blog.sort((a, b) => parseDate(b.data.date) - parseDate(a.data.date)).map((post) => ({
+    items: blog.map((post) => ({
       title: post.data.title,
       pubDate: new Date(parseDate(post.data.date)),
       description: post.data.description || '',

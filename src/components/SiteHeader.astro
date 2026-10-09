@@ -1,0 +1,15 @@
+---
+import { base } from '../utils/date';
+interface Props { title?: string; subtitle?: string }
+const { title = 'Project Lazarus', subtitle = 'Research Notes & Working Papers // The Archival Rabbit Hole' } = Astro.props;
+const links = [['Lab', 'lab'], ['Archive', 'archive'], ['Write', 'write'], ['RSS', 'rss.xml']];
+---
+<header class="mb-24 text-center">
+  <h1 class="text-4xl font-serif text-inkLight tracking-tight">{title}</h1>
+  <p class="font-mono text-graphiteLight text-sm mt-4 tracking-widest uppercase">{subtitle}</p>
+  <nav aria-label="Primary" class="mt-8 flex justify-center gap-6 font-mono text-sm">
+    {links.map(([label, path]) => (
+      <a href={`${base}${path}`} class="text-graphiteLight hover:text-terracottaDark transition-colors">[{label}]</a>
+    ))}
+  </nav>
+</header>
