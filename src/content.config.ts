@@ -1,10 +1,12 @@
 import { z, defineCollection } from 'astro:content';
+import { glob } from 'astro/loaders';
 
 const blogCollection = defineCollection({
-  type: 'content',
+  loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/blog' }),
   schema: z.object({
     title: z.string(),
-    date: z.string(),
+    // Accepts YYYY.MM.DD, YYYY-MM-DD or YYYY/MM/DD; a typo fails the build instead of sorting wrongly.
+    date: z.string().regex(/^\d{4}[.\-/]\d{1,2}[.\-/]\d{1,2}$/, 'date must look like 2026.10.04'),
     tag: z.enum(['TECH', 'PHYSICS', 'MATH', 'HISTORY', 'ANIME', 'LOG']).default('LOG'),
     /** Extra free-form topics, used for tag pages and related posts. */
     topics: z.array(z.string()).default([]),

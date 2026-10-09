@@ -1,5 +1,5 @@
 ---
-import { ViewTransitions } from 'astro:transitions';
+import { ClientRouter } from 'astro:transitions';
 import '@fontsource-variable/eb-garamond';
 import '@fontsource-variable/eb-garamond/wght-italic.css';
 import '@fontsource/courier-prime/400.css';
@@ -47,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site);
         document.documentElement.dataset.theme = t;
       })();
     </script>
-    <ViewTransitions />
+    <ClientRouter />
   </head>
   <body class="bg-paperDark text-inkLight min-h-screen antialiased">
     <a href="#main" class="skip-link">Skip to content</a>

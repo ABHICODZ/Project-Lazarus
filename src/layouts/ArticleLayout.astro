@@ -70,15 +70,15 @@ const statusHelp = {
 
     <footer class="mt-24 pt-8 border-t border-hairlineDark font-mono text-sm space-y-10">
       <div class="flex justify-between gap-6">
-        {older ? <a href={`${base}${older.slug}/`} class="text-graphiteLight hover:text-terracottaDark max-w-[45%]">← {older.data.title}</a> : <span />}
-        {newer ? <a href={`${base}${newer.slug}/`} class="text-graphiteLight hover:text-terracottaDark text-right max-w-[45%]">{newer.data.title} →</a> : <span />}
+        {older ? <a href={`${base}${older.id}/`} class="text-graphiteLight hover:text-terracottaDark max-w-[45%]">← {older.data.title}</a> : <span />}
+        {newer ? <a href={`${base}${newer.id}/`} class="text-graphiteLight hover:text-terracottaDark text-right max-w-[45%]">{newer.data.title} →</a> : <span />}
       </div>
       {related.length > 0 && (
         <section aria-labelledby="related-h">
           <h2 id="related-h" class="text-terracottaDark uppercase tracking-widest text-xs mb-3">Further down the rabbit hole</h2>
           <ul class="space-y-2">
             {related.map((p) => (
-              <li><a href={`${base}${p.slug}/`} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
+              <li><a href={`${base}${p.id}/`} class="text-graphiteLight hover:text-terracottaDark">{p.data.title}</a>
                 <span class="text-xs text-graphiteLight/60"> [{p.data.tag}]</span></li>
             ))}
           </ul>
