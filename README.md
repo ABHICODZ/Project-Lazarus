@@ -1,84 +1,103 @@
+<div align="center">
+
+<br>
+
 # Project Lazarus
 
-A minimalist archival blog and digital garden built with **Astro 6**. It is for research notes, working papers and technical explorations: essays you can read, notes that are still growing, and experiments you can break.
+**Research notes, working papers, and a few things you can break.**
 
-Dark and light themes, EB Garamond and Courier Prime, terracotta accents.
+An archival blog and digital garden. Dark and light. Quietly experimental.
 
-## Features
+<br>
 
-**Reading**
-- KaTeX math (`$E = mc^2$`, `$$ ... $$`), Shiki syntax highlighting, self-hosted fonts, linked headings, a scroll-spy table of contents, Tufte-style sidenotes (tap or focus on small screens), a print stylesheet.
-- Light and dark themes: follows the OS, remembers your choice, no flash on load.
+[**Read**](https://abhicodz.github.io/Project-Lazarus/) &nbsp;·&nbsp;
+[Start here](https://abhicodz.github.io/Project-Lazarus/start/) &nbsp;·&nbsp;
+[The Lab](https://abhicodz.github.io/Project-Lazarus/lab/) &nbsp;·&nbsp;
+[Write](https://abhicodz.github.io/Project-Lazarus/write/)
 
-**Explorables** (in the [Lab](src/pages/lab.astro) and inside essays)
-- `<Explorable>` wrapper with model notes, a "view source" link and a "copy link to this state" button.
-- An Ising model simulator (Metropolis dynamics, seeded, URL-backed temperature) and a predict-then-reveal widget.
-- `<Cite id="..." />` and `<References ids={[...]} />`, backed by [`src/data/references.json`](src/data/references.json).
+<br>
 
-**Write studio** (`/write`)
-- Drop, paste or pick images: they are resized to 1600px and converted to WebP in the browser, need alt text, and become `<Figure>`s that Astro optimises (responsive sizes) at build time.
-- Live preview with math, formatting toolbar, a component inserter, and validation that mirrors the content schema.
-- Drafts, including images, are saved in the browser.
-- Publish by opening a pull request (a fine-grained GitHub token commits the post and images to a new branch, so CI checks it first), download a `.zip` to unzip into the repo, or copy the Markdown.
+[![Build](https://github.com/ABHICODZ/Project-Lazarus/actions/workflows/deploy.yml/badge.svg)](https://github.com/ABHICODZ/Project-Lazarus/actions/workflows/deploy.yml)
+![Astro 6](https://img.shields.io/badge/Astro-6-1a1a1a?logo=astro&logoColor=E06D5C)
+![License MIT](https://img.shields.io/badge/license-MIT-1a1a1a)
 
-**Garden**
-- Essays (`src/content/blog`) and short notes (`src/content/notes`, default stage "seedling").
-- `[[wiki links]]` between any entries, with "Mentioned in" backlinks. A link to a page that does not exist fails the build.
-- A Constellation map, a Start here page grouped by growth stage, tag pages, an archive, related posts.
+<br>
 
-**Discovery and reach**
-- Search (Pagefind), loaded on demand; press `/` or `Ctrl/Cmd+K`.
-- Per-post share images generated at build time, RSS and JSON Feed, sitemap.
-- Optional comments through giscus (see below).
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/hero-light.webp">
+  <img src="docs/hero-dark.webp" alt="An essay about the Ising model, set in EB Garamond with typeset math and a terracotta accent" width="860">
+</picture>
 
-**Quality gates**
-- Strict TypeScript (`astro check`), unit tests for the wiki link plugin, Playwright tests for links, RSS, theme, the Lab, explorables, contrast tokens, print styles and performance budgets (JS, CSS, images, layout shift).
-- A weekly external link-rot check with Internet Archive suggestions.
+</div>
 
-## Develop
+<br>
+
+Most blogs are timelines. Lazarus is a garden: finished essays sit beside seedling notes, they link to each other, and some of them contain experiments the reader can break.
+
+## Highlights
+
+- **Essays you can poke.** Embedded explorables, starting with an Ising model whose state lives in the URL, plus predict-then-reveal prompts.
+- **A garden, not a feed.** Notes with growth stages, `[[wiki links]]`, backlinks and a constellation map of everything.
+- **Typeset for reading.** KaTeX math, Shiki code, sidenotes, light and dark themes, and a print stylesheet.
+- **Write in the browser.** Drop images in (converted to WebP on your machine), preview, and publish as a pull request.
+- **Fast and quiet.** Static HTML, 16 KB of JavaScript on the home page, search that loads only when asked.
+- **Guarded.** Type-checked, tested on desktop and mobile, with performance budgets and a weekly link-rot check.
+
+<div align="center">
+<br>
+<picture>
+  <source media="(prefers-color-scheme: light)" srcset="docs/explorable-light.webp">
+  <img src="docs/explorable-dark.webp" alt="The Ising model explorable: a lattice of spins with a temperature slider" width="620">
+</picture>
+<br>
+<sub>An explorable in an essay. Drag the temperature across the critical point.</sub>
+<br><br>
+</div>
+
+## Quick start
 
 ```bash
 npm install
-npm run dev
+npm run dev        # http://localhost:4321/Project-Lazarus/
 ```
 
-Open <http://localhost:4321/Project-Lazarus/>. Search needs a build (`npm run build && npm run preview`) because Pagefind indexes the built HTML.
+```bash
+npm run build      # type-check, build, index for search
+npm test           # unit tests, then Playwright
+```
 
-| Command | What it does |
-| --- | --- |
-| `npm run dev` | Dev server with hot reload |
-| `npm run build` | Type-check, build, then index for search |
-| `npm run preview` | Serve the production build |
-| `npm test` | Unit tests, then Playwright (run `npm run build` first) |
-| `npm run check:links` | Check external links in content |
-
-Preview drafts with `INCLUDE_DRAFTS=1 npm run build`.
+Search needs a build (`npm run build && npm run preview`), because it indexes the built pages.
 
 ## Writing
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the frontmatter fields and components. Two ways to publish:
+Add an `.mdx` file to `src/content/blog/` for an essay or `src/content/notes/` for a note, or use [`/write`](https://abhicodz.github.io/Project-Lazarus/write/) in the browser. Frontmatter, components, images and publishing are covered in **[CONTRIBUTING.md](CONTRIBUTING.md)**.
 
-1. **In the browser:** open `/write`, draft (with images), then open a pull request, download the `.zip`, or copy the Markdown. See [Publishing from /write](CONTRIBUTING.md#publishing-from-write).
-2. **Locally:** add an `.mdx` file to `src/content/blog/` (essay) or `src/content/notes/` (note) and push to `main`.
+## Built with
+
+[Astro](https://astro.build) · [Tailwind CSS](https://tailwindcss.com) · MDX · [KaTeX](https://katex.org) · [Shiki](https://shiki.style) · [Pagefind](https://pagefind.app) · [Satori](https://github.com/vercel/satori) · [Playwright](https://playwright.dev)
+
+## Layout
+
+```text
+src/content/blog/       essays
+src/content/notes/      notes
+src/components/         Sidenote, Figure, Callout, Cite, explorables
+src/pages/              routes, including /write and the share-image endpoint
+src/lib/                explorable helpers and the write studio
+plugins/                [[wiki link]] remark plugin
+tests/                  unit and Playwright tests
+```
 
 ## Hosting
 
-Deployed to GitHub Pages by [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml): pull requests build and test; only `main` deploys. To host elsewhere, set the URL and base path at build time. For example, on a root domain:
+Deployed to GitHub Pages by [a workflow](.github/workflows/deploy.yml): pull requests build and test, and only `main` deploys. To host elsewhere, set the address at build time:
 
 ```bash
 SITE_URL=https://example.com SITE_BASE=/ npm run build
 ```
 
-Playwright reads `SITE_BASE` too, so the tests follow.
-
-## Comments (optional)
-
-Comments use [giscus](https://giscus.app) and appear only when configured. Enable Discussions on the repo, install the giscus app, then copy `.env.example` to `.env` and fill in `PUBLIC_GISCUS_REPO_ID` and `PUBLIC_GISCUS_CATEGORY_ID` (and add them as repository variables if you build in CI).
-
-## Stack
-
-Astro 6, Tailwind CSS 4 (Vite plugin), MDX, KaTeX, Shiki, Pagefind, Satori + sharp, Playwright. Vite is pinned to 7 so Astro and the Tailwind plugin share one copy.
+Comments are optional and appear once giscus is configured; see [`.env.example`](.env.example).
 
 ## License
 
-MIT
+[MIT](LICENSE)
