@@ -11,13 +11,14 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
+    # Each PR/branch gets its own group, so opening many PRs at once (Dependabot does) does not cancel
+    # their builds. A newer push to the same branch supersedes the older run.
+    concurrency:
+      group: build-${{ github.ref }}
+      cancel-in-progress: true
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -36,6 +37,10 @@ jobs:
   deploy:
     if: github.event_name != 'pull_request'
     needs: build
+    # Deploys must never overlap or be cancelled halfway.
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     runs-on: ubuntu-latest
     environment:
       name: github-pages

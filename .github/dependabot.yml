@@ -6,6 +6,17 @@ updates:
     open-pull-requests-limit: 5
     groups:
       astro: { patterns: ["astro", "@astrojs/*"] }
+    ignore:
+      # Majors that need a deliberate migration, not a bump:
+      # - vite: Astro pins its own Vite; a second major breaks the build (Tailwind plugin and Astro must share one copy).
+      # - typescript: @astrojs/check does not support TypeScript 7 yet (npm ERESOLVE).
+      # - animejs: v4 is a new API; src/pages/lab.astro uses the v3 API.
+      - dependency-name: "vite"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "animejs"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
