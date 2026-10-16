@@ -24,7 +24,7 @@
     "@tailwindcss/vite": "^4.3.3",
     "animejs": "^3.2.2",
     "astro": "^6.4.8",
-    "dompurify": "^3.4.16",
+    "dompurify": "^3.4.17",
     "fflate": "^0.8.3",
     "katex": "^0.19.0",
     "marked": "^18.1.0",
