@@ -98,7 +98,7 @@ test.describe('Zeta explorable', () => {
 
   test('the post links to the lab experiment', async ({ page }) => {
     await page.goto('game-of-primes/');
-    await page.getByRole('link', { name: 'the Lab' }).click();
+    await page.getByRole('link', { name: /Try it in the Lab/ }).click();
     await expect(page).toHaveURL(/lab\/#zeta/);
     await expect(page.locator('[data-zeta]')).toBeVisible();
   });

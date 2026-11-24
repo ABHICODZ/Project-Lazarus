@@ -9,10 +9,6 @@ description: "Understanding the Riemann Hypothesis, one prime at a time."
 ---
 
 import Figure from '../../components/Figure.astro';
-import Callout from '../../components/Callout.astro';
-import Sidenote from '../../components/Sidenote.astro';
-import Cite from '../../components/Cite.astro';
-import References from '../../components/References.astro';
 import { base } from '../../utils/date';
 import img_1 from '../../assets/posts/game-of-primes/1.webp';
 import img_2 from '../../assets/posts/game-of-primes/2.webp';
@@ -28,7 +24,7 @@ Hello, all!
 
 Honestly, I am fed up with the larping that is going on by these Instagram creators just to milk content out of this stuff. Nobody has clearly explained what the Riemann Hypothesis actually is or why I should give a fuck about it (ik my language is rude).
 
-So yeah, this concept is honestly more interesting than it seems. It's pretty hard to comprehend, tbh. Even I don't fully know what it entails or what it means as a whole, but from what I have learnt and understood about the Riemann Hypothesis, it's about finding the hidden pattern between the distribution of prime numbers<Sidenote num="1">The Clay Mathematics Institute offers a prize of one million US dollars for a proof. It is one of the seven Millennium Prize Problems, and only one of those seven has been solved so far.</Sidenote>.
+So yeah, this concept is honestly more interesting than it seems. It's pretty hard to comprehend, tbh. Even I don't fully know what it entails or what it means as a whole, but from what I have learnt and understood about the Riemann Hypothesis, it's about finding the hidden pattern between the distribution of prime numbers.
 
 The Riemann Zeta Function extends into infinity, and the hypothesis uses the interesting concept of imaginary numbers and their role in the non-trivial zeros to help us understand the possible distribution of primes.
 
@@ -61,13 +57,13 @@ $$
 }
 $$
 
-At first glance, it looks like a never-ending addition of fractions. But there's something interesting about it. Depending on the value of $s$, this infinite series converges to different values. For example, when $s=2$<Sidenote num="2">This value is known as the Basel problem, which Euler first solved in the 1730s. Nobody expected pi to show up in a sum of fractions.</Sidenote>, the entire infinite series converges to:
+At first glance, it looks like a never-ending addition of fractions. But there's something interesting about it. Depending on the value of $s$, this infinite series converges to different values. For example, when $s=2$, the entire infinite series converges to:
 
 $$
 \boxed{\zeta(2)=\frac{\pi^2}{6}}
 $$
 
-But Riemann took this function a step further. Instead of restricting $s$ to ordinary real numbers, he extended the function into the world of complex numbers<Sidenote num="3">The series above only converges when the real part of s is greater than 1. Everywhere else the function is defined by analytic continuation, the one natural way to stretch it over the whole plane without breaking it.</Sidenote>.
+But Riemann took this function a step further. Instead of restricting $s$ to ordinary real numbers, he extended the function into the world of complex numbers.
 
 ## 03 — Enter the imaginary numbers
 
@@ -87,7 +83,7 @@ And now comes the interesting part: the zeros of the Zeta Function.
 
 Just like any other mathematical function, we can investigate the values at which its output becomes zero. These are called the zeros of the function.
 
-Some of these are already understood and are called trivial zeros<Sidenote num="4">They are called trivial because they follow directly from the functional equation that Riemann proved. Nothing mysterious about them.</Sidenote>:
+Some of these are already understood and are called trivial zeros:
 
 $$
 \boxed{s=-2,-4,-6,-8,\ldots}
@@ -99,7 +95,7 @@ $$
 \boxed{0<\operatorname{Re}(s)<1}
 $$
 
-Riemann proposed something extraordinary: what if every single non-trivial zero lies exactly on one vertical line, where the real part is always $1/2$?<Cite id="riemann1859" />
+Riemann proposed something extraordinary: what if every single non-trivial zero lies exactly on one vertical line, where the real part is always $1/2$?
 
 That vertical line is called the critical line.
 
@@ -112,10 +108,6 @@ And this is essentially what the Riemann Hypothesis is about.
 
 <Figure src={img_2} num={2} alt={"imaginary numbers "} caption={"This is probably the most important visual in the article. It helps readers understand the real part, imaginary part, critical strip and critical line."} />
 
-<Callout kind="note" title="Try it">
-Rebuild the primes yourself from the first 30 zeros in <a href={`${base}lab/#zeta`}>the Lab</a>: start with a flat line, then add the zeros one by one.
-</Callout>
-
 
 
 ## 04 — Okay, but why should I care?
@@ -124,7 +116,7 @@ Now you may ask, "What the actual fuck are you larping about, Abhinav?" I unders
 
 So, to put it simply, the whole point of this hypothesis is to understand the behaviour and distribution of prime numbers. The non-trivial zeros of the Riemann Zeta Function are connected to the fluctuations in prime distribution. This relationship is what makes this topic so interesting.
 
-And finally, the most important thing to note, and also the most misunderstood part of the Riemann Hypothesis, is that we think it is about pinpointing the number of primes and stuff. No, it is not. There are functions and theorems to estimate the number of primes, like the Prime Number Theorem<Sidenote num="5">Gauss and Legendre guessed it from tables of primes around 1800. It was proved independently by Hadamard and de la Vallée Poussin in 1896, using the zeta function.</Sidenote>.
+And finally, the most important thing to note, and also the most misunderstood part of the Riemann Hypothesis, is that we think it is about pinpointing the number of primes and stuff. No, it is not. There are functions and theorems to estimate the number of primes, like the Prime Number Theorem.
 
 $$
 \boxed{\pi(x)\sim\frac{x}{\ln x}}
@@ -152,11 +144,11 @@ $$
 }
 $$
 
-is a more accurate estimate of prime counts, and the $O$ notation describes the scale of the error<Sidenote num="6">Helge von Koch showed in 1901 that a bound of this size is equivalent to the Riemann Hypothesis: it holds exactly when the hypothesis is true.</Sidenote>.
+is a more accurate estimate of prime counts, and the $O$ notation describes the scale of the error.
 
 So, the Prime Number Theorem gives us the general trend, while RH tells us how tightly we can bound the error around that trend. And that's why a seemingly simple statement about a vertical line at $1/2$ has such massive implications for number theory.
 
-Sooo yeahhh, a lot of stuff to take in. As of now, the proof is being reviewed. There are signs that it might be true<Cite id="platt2021" />, but the Clay Mathematics Institute still lists the problem as active<Cite id="bombieri2000" />, so it's not officially accepted.
+Sooo yeahhh, a lot of stuff to take in. As of now, the proof is being reviewed. There are signs that it might be true, but the Clay Mathematics Institute still lists the problem as active, so it's not officially accepted.
 
 ## 05 — And the most important question of all: why should we care?
 
@@ -164,11 +156,11 @@ Ik most people say that the rate at which AI is progressing is concerning and th
 
 The most probably affected area would be the field of internet security.
 
-The whole of RSA is based on the multiplication of two huge prime numbers<Cite id="rsa1978" />, and with our understanding of prime numbers broadening, Shor's algorithm<Cite id="shor1997" /> to break apart the two numbers might pose a threat to modern internet security<Sidenote num="7">To be precise, Shor's algorithm needs a large quantum computer and does not depend on the Riemann Hypothesis. A proof of RH would improve our understanding of primes, but it would not by itself break RSA.</Sidenote>.
+The whole of RSA is based on the multiplication of two huge prime numbers, and with our understanding of prime numbers broadening, Shor's algorithm to break apart the two numbers might pose a threat to modern internet security.
 
 ### Quantum Mechanics
 
-Topics like quantum chaos, the Hilbert–Pólya conjecture<Sidenote num="8">The idea that the zeros are the energy levels of some quantum system. Montgomery and Dyson noticed in the 1970s that the spacing of the zeros statistically matches the spacing of energy levels in heavy atoms. Nobody has found the system yet.</Sidenote>, and quantum energy, like Hamiltonian operators, are affected and can be studied and understood through these connections.
+Topics like quantum chaos, the Hilbert–Pólya conjecture, and quantum energy, like Hamiltonian operators, are affected and can be studied and understood through these connections.
 
 
 for final bonus 
@@ -176,4 +168,14 @@ for final bonus
 
 <Figure src={img_3} num={3} alt={"meme"} />
 
-<References ids={['bombieri2000', 'platt2021', 'riemann1859', 'rsa1978', 'shor1997']} />
+## Learn more
+
+- <a href={`${base}lab/#zeta`}>Try it in the Lab: rebuild the primes from the zeta zeros</a>
+- [3Blue1Brown: Visualizing the Riemann zeta function and analytic continuation](https://www.youtube.com/watch?v=sD0NjbwqlYw)
+- [Clay Mathematics Institute: the Riemann Hypothesis](https://www.claymath.org/millennium/riemann-hypothesis/)
+- [Bombieri: Problems of the Millennium, the Riemann Hypothesis](https://www.claymath.org/wp-content/uploads/2022/05/riemann.pdf)
+- [Riemann's 1859 paper, English translation](https://www.maths.tcd.ie/pub/HistMath/People/Riemann/Zeta/EZeta.pdf)
+- [Riemann hypothesis (Wikipedia)](https://en.wikipedia.org/wiki/Riemann_hypothesis)
+- [Prime number theorem (Wikipedia)](https://en.wikipedia.org/wiki/Prime_number_theorem)
+- [Euler product (Wikipedia)](https://en.wikipedia.org/wiki/Euler_product)
+- [LMFDB: computed zeros of the zeta function](https://www.lmfdb.org/zeros/zeta/)

@@ -26,40 +26,5 @@
     "title": "Explorable Explanations",
     "venue": "worrydream.com",
     "url": "https://worrydream.com/ExplorableExplanations/"
-  },
-  "riemann1859": {
-    "authors": "Riemann, B.",
-    "year": 1859,
-    "title": "Ueber die Anzahl der Primzahlen unter einer gegebenen Grösse (English translation by D. R. Wilkins)",
-    "venue": "Monatsberichte der Königlichen Preußischen Akademie der Wissenschaften zu Berlin, 671-680",
-    "url": "https://www.maths.tcd.ie/pub/HistMath/People/Riemann/Zeta/EZeta.pdf"
-  },
-  "bombieri2000": {
-    "authors": "Bombieri, E.",
-    "year": 2000,
-    "title": "Problems of the Millennium: The Riemann Hypothesis",
-    "venue": "Clay Mathematics Institute",
-    "url": "https://www.claymath.org/wp-content/uploads/2022/05/riemann.pdf"
-  },
-  "platt2021": {
-    "authors": "Platt, D., Trudgian, T.",
-    "year": 2021,
-    "title": "The Riemann hypothesis is true up to 3·10^12",
-    "venue": "Bulletin of the London Mathematical Society 53(3), 792-797",
-    "url": "https://doi.org/10.1112/blms.12460"
-  },
-  "rsa1978": {
-    "authors": "Rivest, R. L., Shamir, A., Adleman, L.",
-    "year": 1978,
-    "title": "A Method for Obtaining Digital Signatures and Public-Key Cryptosystems",
-    "venue": "Communications of the ACM 21(2), 120-126",
-    "url": "https://doi.org/10.1145/359340.359342"
-  },
-  "shor1997": {
-    "authors": "Shor, P. W.",
-    "year": 1997,
-    "title": "Polynomial-Time Algorithms for Prime Factorization and Discrete Logarithms on a Quantum Computer",
-    "venue": "SIAM Journal on Computing 26(5), 1484-1509",
-    "url": "https://doi.org/10.1137/S0097539795293172"
   }
 }
