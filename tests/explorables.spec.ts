@@ -73,3 +73,33 @@ test('boxed formulas keep their box (KaTeX stylesheet matches the renderer)', as
   // When renderer and stylesheet disagree, the box collapses to a ~2px bar.
   expect((await box.boundingBox())!.width).toBeGreaterThan(50);
 });
+
+test.describe('Zeta explorable', () => {
+  test('adding zeros shrinks the miss, and the URL restores the state', async ({ page }) => {
+    await page.goto('lab/?zeta.n=0');
+    const root = page.locator('[data-zeta]');
+    await root.scrollIntoViewIfNeeded();
+    await expect(root.locator('[data-n-out]')).toHaveText('0');
+    const none = Number(await root.locator('[data-err]').textContent());
+    await root.getByRole('button', { name: 'All 30' }).click();
+    await expect(root.locator('[data-n-out]')).toHaveText('30');
+    const all = Number(await root.locator('[data-err]').textContent());
+    expect(all).toBeLessThan(none);
+    expect(new URL(page.url()).searchParams.get('zeta.n')).toBe('30');
+  });
+
+  test('the explorable keeps a sane height (canvas sizing must not feed back into layout)', async ({ page }) => {
+    await page.goto('lab/');
+    const box = await page.locator('[data-zeta]').boundingBox();
+    expect(box!.height).toBeLessThan(1100);
+    await page.waitForTimeout(500);
+    expect((await page.locator('[data-zeta]').boundingBox())!.height).toBeLessThan(1100);
+  });
+
+  test('the post links to the lab experiment', async ({ page }) => {
+    await page.goto('game-of-primes/');
+    await page.getByRole('link', { name: /Try it in the Lab/ }).click();
+    await expect(page).toHaveURL(/lab\/#zeta/);
+    await expect(page.locator('[data-zeta]')).toBeVisible();
+  });
+});

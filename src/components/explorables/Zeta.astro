@@ -1,0 +1,218 @@
+---
+import Explorable from '../Explorable.astro';
+
+interface Props {
+  /** Prefix for URL parameters, so several instances on one page stay independent. */
+  id?: string;
+  num?: number | string;
+}
+const { id = 'zeta', num } = Astro.props;
+const btn = 'px-3 py-2 border border-controlDark text-graphiteLight font-mono text-xs uppercase tracking-widest hover:text-terracottaDark hover:border-terracottaDark transition-colors cursor-pointer';
+---
+<Explorable title="Rebuilding the primes from the zeta zeros" num={num} source="src/components/explorables/Zeta.astro">
+  <div data-zeta data-id={id} class="space-y-5">
+    <div class="grid gap-4 md:grid-cols-[minmax(0,1fr)_10rem] items-stretch">
+      <canvas data-plot role="img" aria-label="Prime staircase and its reconstruction" class="w-full aspect-[16/10] border border-hairlineDark"></canvas>
+      <div class="relative h-48 md:h-auto border border-hairlineDark">
+        <canvas data-strip role="img" aria-label="The critical strip with the zeros used so far" class="absolute inset-0 w-full h-full"></canvas>
+      </div>
+    </div>
+
+    <div class="grid gap-5 md:grid-cols-2 font-mono text-xs text-graphiteLight">
+      <label class="block">
+        <span class="flex justify-between uppercase tracking-widest text-terracottaDark mb-2">
+          <span>Zeros used</span><output data-n-out class="text-inkLight">6</output>
+        </span>
+        <input data-n type="range" min="0" max="30" step="1" value="6" class="w-full accent-[rgb(var(--accent))]" />
+      </label>
+      <label class="block">
+        <span class="flex justify-between uppercase tracking-widest text-terracottaDark mb-2">
+          <span>Look up to x =</span><output data-x-out class="text-inkLight">100</output>
+        </span>
+        <input data-x type="range" min="20" max="200" step="10" value="100" class="w-full accent-[rgb(var(--accent))]" />
+      </label>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-x-6 gap-y-3 font-mono text-xs text-graphiteLight">
+      <dl class="flex gap-2"><dt>Average miss</dt><dd data-err class="text-inkLight">–</dd></dl>
+      <button type="button" data-play class={btn}>Add zeros one by one</button>
+      <button type="button" data-none class={btn}>No zeros</button>
+      <button type="button" data-all class={btn}>All 30</button>
+    </div>
+    <p class="font-mono text-xs text-graphiteLight flex flex-wrap gap-x-6 gap-y-1">
+      <span><span class="inline-block w-3 h-0.5 align-middle mr-2" style="background: rgb(var(--graphite))"></span>the real primes</span>
+      <span><span class="inline-block w-3 h-0.5 align-middle mr-2" style="background: rgb(var(--accent))"></span>rebuilt from zeros</span>
+    </p>
+  </div>
+
+  <Fragment slot="notes">
+    <p>The plot shows ψ(x) − x, where ψ(x) adds ln p for every prime power p<sup>k</sup> ≤ x. Primes make it jump; the steady −1 slope between them gives the sawtooth. With no zeros the rebuilt curve is just the flat background term.</p>
+    <p>Riemann's explicit formula is ψ(x) = x − Σ x<sup>ρ</sup>/ρ − ln 2π − ½ ln(1 − x<sup>−2</sup>), summed over the non-trivial zeros ρ = ½ + iγ. Each pair of zeros contributes one smooth wave whose rate is set by γ. The strip on the right marks the first thirty zeros (only the upper half is shown; each has a mirror image below the axis).</p>
+    <p>Near each jump the rebuilt curve overshoots and rings, the same effect as a Fourier series on a step. Thirty zeros give a good picture, not an exact one: the exact formula needs all of them. The zero values are hard-coded to six decimals.</p>
+  </Fragment>
+  <Fragment slot="fallback">Adding the non-trivial zeros of the zeta function one at a time turns a flat line into the exact staircase of the primes. Enable JavaScript to try it.</Fragment>
+</Explorable>
+
+<script>
+  import { readParam, writeParam, whileVisible, cssRgb } from '../../lib/explorable';
+  import { ZEROS, primesUpTo, psi, psiFromZeros } from '../../lib/zeta';
+
+  const PRIMES = primesUpTo(200);
+  const MAX_T = 105;
+
+  function init(root: HTMLElement) {
+    if (root.dataset.ready) return;
+    root.dataset.ready = '1';
+
+    const id = root.dataset.id ?? 'zeta';
+    const q = <T extends Element>(sel: string) => root.querySelector<T>(sel)!;
+    const plot = q<HTMLCanvasElement>('[data-plot]');
+    const strip = q<HTMLCanvasElement>('[data-strip]');
+    const nSlider = q<HTMLInputElement>('[data-n]');
+    const xSlider = q<HTMLInputElement>('[data-x]');
+    const nOut = q('[data-n-out]');
+    const xOut = q('[data-x-out]');
+    const errOut = q('[data-err]');
+    const playBtn = q<HTMLButtonElement>('[data-play]');
+
+    let n = Math.round(readParam(`${id}.n`, 6, 0, ZEROS.length));
+    let xMax = Math.round(readParam(`${id}.x`, 100, 20, 200) / 10) * 10;
+    let playing = false;
+    let timer = 0;
+    let visible = true;
+
+    const colors = () => ({
+      ink: cssRgb('ink'), graphite: cssRgb('graphite'), accent: cssRgb('accent'), hairline: cssRgb('hairline'),
+    });
+    const rgb = (c: number[], a = 1) => `rgba(${c[0]}, ${c[1]}, ${c[2]}, ${a})`;
+
+    function fit(c: HTMLCanvasElement) {
+      const dpr = window.devicePixelRatio || 1;
+      const w = Math.max(1, Math.round(c.clientWidth * dpr));
+      const h = Math.max(1, Math.round(c.clientHeight * dpr));
+      if (c.width !== w || c.height !== h) { c.width = w; c.height = h; }
+      const ctx = c.getContext('2d')!;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      return { ctx, w: c.clientWidth, h: c.clientHeight };
+    }
+
+    function drawPlot() {
+      const { ctx, w, h } = fit(plot);
+      const col = colors();
+      ctx.clearRect(0, 0, w, h);
+      const padL = 38, padR = 10, padT = 12, padB = 24;
+      const pw = w - padL - padR, ph = h - padT - padB;
+      const x0 = 2;
+
+      // Sample both curves once per pixel column.
+      const steps = Math.max(2, Math.floor(pw));
+      const xs: number[] = [], real: number[] = [], built: number[] = [];
+      let lo = Infinity, hi = -Infinity, err = 0;
+      for (let i = 0; i <= steps; i++) {
+        const x = x0 + ((xMax - x0) * i) / steps;
+        const r = psi(x, PRIMES) - x;
+        const b = psiFromZeros(x, n) - x;
+        xs.push(x); real.push(r); built.push(b);
+        lo = Math.min(lo, r, b); hi = Math.max(hi, r, b);
+        err += Math.abs(r - b);
+      }
+      errOut.textContent = (err / (steps + 1)).toFixed(2);
+      lo = Math.min(lo, -6); hi = Math.max(hi, 2);
+      const pad = (hi - lo) * 0.06; lo -= pad; hi += pad;
+      const X = (x: number) => padL + ((x - x0) / (xMax - x0)) * pw;
+      const Y = (v: number) => padT + (1 - (v - lo) / (hi - lo)) * ph;
+
+      ctx.font = '11px ui-monospace, monospace';
+      ctx.fillStyle = rgb(col.graphite);
+      ctx.strokeStyle = rgb(col.hairline);
+      ctx.lineWidth = 1;
+      // y grid every 2 or 5 units
+      const stepY = hi - lo > 14 ? 5 : 2;
+      ctx.textAlign = 'right';
+      for (let v = Math.ceil(lo / stepY) * stepY; v <= hi; v += stepY) {
+        ctx.globalAlpha = v === 0 ? 0.9 : 0.4;
+        ctx.beginPath(); ctx.moveTo(padL, Y(v)); ctx.lineTo(w - padR, Y(v)); ctx.stroke();
+        ctx.globalAlpha = 1;
+        ctx.fillText(String(v), padL - 6, Y(v) + 4);
+      }
+      ctx.textAlign = 'center';
+      const stepX = xMax <= 50 ? 10 : xMax <= 100 ? 20 : 50;
+      for (let v = 0; v <= xMax; v += stepX) if (v >= x0) ctx.fillText(String(v), X(v), h - 6);
+
+      const line = (ys: number[], color: string, width: number) => {
+        ctx.strokeStyle = color; ctx.lineWidth = width; ctx.beginPath();
+        ys.forEach((v, i) => (i ? ctx.lineTo(X(xs[i]), Y(v)) : ctx.moveTo(X(xs[i]), Y(v))));
+        ctx.stroke();
+      };
+      line(real, rgb(col.graphite), 1.5);
+      line(built, rgb(col.accent), 2);
+
+      plot.setAttribute('aria-label', `The prime staircase ψ(x) − x up to ${xMax}, and its reconstruction from ${n} zeta zeros; average miss ${errOut.textContent}.`);
+    }
+
+    function drawStrip() {
+      const { ctx, w, h } = fit(strip);
+      const col = colors();
+      ctx.clearRect(0, 0, w, h);
+      const padT = 12, padB = 16;
+      const sx0 = w * 0.22, sx1 = w * 0.78; // Re(s) = 0 .. 1
+      const Y = (t: number) => h - padB - (t / MAX_T) * (h - padT - padB);
+      ctx.fillStyle = rgb(col.accent, 0.12);
+      ctx.fillRect(sx0, padT, sx1 - sx0, h - padT - padB);
+      ctx.strokeStyle = rgb(col.hairline); ctx.lineWidth = 1;
+      ctx.strokeRect(sx0, padT, sx1 - sx0, h - padT - padB);
+      ctx.setLineDash([4, 4]); ctx.strokeStyle = rgb(col.accent, 0.8);
+      const mid = (sx0 + sx1) / 2;
+      ctx.beginPath(); ctx.moveTo(mid, padT); ctx.lineTo(mid, h - padB); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.font = '10px ui-monospace, monospace'; ctx.fillStyle = rgb(col.graphite); ctx.textAlign = 'center';
+      ctx.fillText('0', sx0, h - 3); ctx.fillText('½', mid, h - 3); ctx.fillText('1', sx1, h - 3);
+      ZEROS.forEach((g, i) => {
+        const on = i < n;
+        ctx.beginPath(); ctx.arc(mid, Y(g), on ? 3.5 : 2.5, 0, Math.PI * 2);
+        if (on) { ctx.fillStyle = rgb(col.accent); ctx.fill(); }
+        else { ctx.strokeStyle = rgb(col.graphite, 0.7); ctx.stroke(); }
+      });
+    }
+
+    const draw = () => { drawPlot(); drawStrip(); };
+
+    function setN(v: number) {
+      n = Math.max(0, Math.min(ZEROS.length, Math.round(v)));
+      nSlider.value = String(n); nOut.textContent = String(n);
+      writeParam(`${id}.n`, n);
+      draw();
+    }
+    function setX(v: number) {
+      xMax = v; xSlider.value = String(v); xOut.textContent = String(v);
+      writeParam(`${id}.x`, v);
+      draw();
+    }
+    function stop() { playing = false; clearInterval(timer); playBtn.textContent = 'Add zeros one by one'; }
+    function play() {
+      playing = true; playBtn.textContent = 'Pause';
+      if (n >= ZEROS.length) setN(0);
+      timer = window.setInterval(() => {
+        if (!root.isConnected || !visible) { if (!root.isConnected) stop(); return; }
+        if (n >= ZEROS.length) { stop(); return; }
+        setN(n + 1);
+      }, 450);
+    }
+
+    nSlider.addEventListener('input', () => { stop(); setN(Number(nSlider.value)); });
+    xSlider.addEventListener('input', () => setX(Number(xSlider.value)));
+    playBtn.addEventListener('click', () => (playing ? stop() : play()));
+    q('[data-none]').addEventListener('click', () => { stop(); setN(0); });
+    q('[data-all]').addEventListener('click', () => { stop(); setN(ZEROS.length); });
+
+    whileVisible(root, (v) => { visible = v; });
+    new ResizeObserver(() => root.isConnected && draw()).observe(plot);
+    new MutationObserver(() => root.isConnected && draw()).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+    nSlider.value = String(n); nOut.textContent = String(n);
+    xSlider.value = String(xMax); xOut.textContent = String(xMax);
+    draw();
+  }
+
+  document.addEventListener('astro:page-load', () => document.querySelectorAll<HTMLElement>('[data-zeta]').forEach(init));
+</script>

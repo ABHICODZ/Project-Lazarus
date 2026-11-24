@@ -9,6 +9,7 @@ description: "Understanding the Riemann Hypothesis, one prime at a time."
 ---
 
 import Figure from '../../components/Figure.astro';
+import { base } from '../../utils/date';
 import img_1 from '../../assets/posts/game-of-primes/1.webp';
 import img_2 from '../../assets/posts/game-of-primes/2.webp';
 import img_3 from '../../assets/posts/game-of-primes/3.webp';
@@ -61,6 +62,14 @@ At first glance, it looks like a never-ending addition of fractions. But there's
 $$
 \boxed{\zeta(2)=\frac{\pi^2}{6}}
 $$
+
+Now here's the part I wish someone had told me first. Euler found that this exact same sum can also be written as a product over every single prime $p$:
+
+$$
+\boxed{\zeta(s)=\prod_{p\text{ prime}}\frac{1}{1-p^{-s}}}
+$$
+
+One side is just adding up every whole number, the other side is multiplying something together for every prime. Same function, two faces. And that is the whole reason a function made of boring fractions has anything to say about primes.
 
 But Riemann took this function a step further. Instead of restricting $s$ to ordinary real numbers, he extended the function into the world of complex numbers.
 
@@ -147,7 +156,7 @@ is a more accurate estimate of prime counts, and the $O$ notation describes the 
 
 So, the Prime Number Theorem gives us the general trend, while RH tells us how tightly we can bound the error around that trend. And that's why a seemingly simple statement about a vertical line at $1/2$ has such massive implications for number theory.
 
-Sooo yeahhh, a lot of stuff to take in. As of now, the proof is being reviewed. There are signs that it might be true, but the Clay Mathematics Institute still lists the problem as active, so it's not officially accepted.
+Sooo yeahhh, a lot of stuff to take in. As of now, the proof is being reviewed, which means **it is not proven yet**. There are signs that it might be true, but the Clay Mathematics Institute still lists the problem as active, so it's not officially accepted. Until that changes, treat every "solved" headline as a claim, not a fact.
 
 ## 05 — And the most important question of all: why should we care?
 
@@ -155,7 +164,7 @@ Ik most people say that the rate at which AI is progressing is concerning and th
 
 The most probably affected area would be the field of internet security.
 
-The whole of RSA is based on the multiplication of two huge prime numbers, and with our understanding of prime numbers broadening, Shor's algorithm to break apart the two numbers might pose a threat to modern internet security.
+The whole of RSA is based on the multiplication of two huge prime numbers. Multiplying them is easy, but splitting the result back into those two primes is brutal. Shor's algorithm is the thing that can actually do that splitting and pose a threat to modern internet security, but it needs a proper quantum computer, and it has nothing to do with the Riemann Hypothesis. So no, proving RH would not break RSA on its own. What it would do is broaden our understanding of how primes are spread out, which matters for finding and testing huge primes. Not a skeleton key, tbh, but still a big deal.
 
 ### Quantum Mechanics
 
@@ -166,3 +175,15 @@ for final bonus
 
 
 <Figure src={img_3} num={3} alt={"meme"} />
+
+## Learn more
+
+- <a href={`${base}lab/#zeta`}>Try it in the Lab: rebuild the primes from the zeta zeros</a>
+- [3Blue1Brown: Visualizing the Riemann zeta function and analytic continuation](https://www.youtube.com/watch?v=sD0NjbwqlYw)
+- [Clay Mathematics Institute: the Riemann Hypothesis](https://www.claymath.org/millennium/riemann-hypothesis/)
+- [Bombieri: Problems of the Millennium, the Riemann Hypothesis](https://www.claymath.org/wp-content/uploads/2022/05/riemann.pdf)
+- [Riemann's 1859 paper, English translation](https://www.maths.tcd.ie/pub/HistMath/People/Riemann/Zeta/EZeta.pdf)
+- [Riemann hypothesis (Wikipedia)](https://en.wikipedia.org/wiki/Riemann_hypothesis)
+- [Prime number theorem (Wikipedia)](https://en.wikipedia.org/wiki/Prime_number_theorem)
+- [Euler product (Wikipedia)](https://en.wikipedia.org/wiki/Euler_product)
+- [LMFDB: computed zeros of the zeta function](https://www.lmfdb.org/zeros/zeta/)
