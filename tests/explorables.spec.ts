@@ -65,3 +65,11 @@ test('predict-then-reveal hides the explanation until a choice is made', async (
   await box.getByRole('button', { name: 'Large single-colour domains' }).click();
   await expect(box.locator('[data-verdict]')).toContainText('Right');
 });
+
+test('boxed formulas keep their box (KaTeX stylesheet matches the renderer)', async ({ page }) => {
+  await page.goto('game-of-primes/');
+  const box = page.locator('.katex-display .fbox').first();
+  await expect(box).toBeVisible();
+  // When renderer and stylesheet disagree, the box collapses to a ~2px bar.
+  expect((await box.boundingBox())!.width).toBeGreaterThan(50);
+});
