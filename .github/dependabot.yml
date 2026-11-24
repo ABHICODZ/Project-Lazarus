@@ -17,6 +17,11 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "animejs"
         update-types: ["version-update:semver-major"]
+      # - katex: rehype-katex renders math with its own katex 0.16; the stylesheet and the editor preview must
+      #   be the same version, or class names drift apart (0.19 renamed .stretchy, which broke \boxed). Move
+      #   this when rehype-katex supports a newer katex.
+      - dependency-name: "katex"
+        update-types: ["version-update:semver-minor", "version-update:semver-major"]
   - package-ecosystem: github-actions
     directory: /
     schedule: { interval: weekly }
