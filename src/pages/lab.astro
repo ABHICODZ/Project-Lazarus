@@ -3,6 +3,7 @@ import Layout from '../layouts/Layout.astro';
 import { base } from '../utils/date';
 import Ising from '../components/explorables/Ising.astro';
 import PredictReveal from '../components/explorables/PredictReveal.astro';
+import Zeta from '../components/explorables/Zeta.astro';
 ---
 <Layout title="The Lab | Project Lazarus">
   <nav class="max-w-[68ch] mx-auto px-4 pt-12 pb-6 border-b border-hairlineDark mb-12">
@@ -59,6 +60,15 @@ import PredictReveal from '../components/explorables/PredictReveal.astro';
           Below T<sub>c</sub> neighbours agreeing is cheaper than heat can undo, so aligned patches grow and merge. Nudge the slider past 2.27 and they dissolve again.
         </PredictReveal>
         <Ising />
+      </section>
+
+      <!-- Experiment 4 -->
+      <section id="zeta">
+        <h2 class="font-serif text-2xl text-inkLight mb-4 flex items-center gap-3">
+          <span class="text-terracottaDark">04.</span> The Zeta Zeros
+        </h2>
+        <p class="font-serif text-graphiteLight mb-6">The primes look like a jagged staircase. Riemann showed that the staircase can be rebuilt from waves, one wave for every non-trivial zero of the zeta function. Start with none and add them one by one: a flat line slowly learns where the primes are. The state lives in the URL. This is the experiment behind <a href={`${base}game-of-primes/`} class="underline hover:text-terracottaDark">game of primes</a>.</p>
+        <Zeta />
       </section>
     </div>
   </main>
